@@ -19,7 +19,7 @@ namespace GeekStore.API.Controllers
         // List of allowed query parameters for getAll request
         private readonly List<string> allowedParameters = new List<string> { "filterOn", "queryFilter", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
-    public ProductsController(IProductRepository productRepository, IMapper mapper) {
+        public ProductsController(IProductRepository productRepository, IMapper mapper) {
             _productRepository = productRepository;
             _mapper = mapper;
         }
