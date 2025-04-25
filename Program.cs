@@ -7,25 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.FileProviders;
-using Serilog;
 using GeekStore.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Adding services to the DI container.
 
-var logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/GeekStore_Log.txt", rollingInterval: RollingInterval.Day)
-    .MinimumLevel.Warning()
-    .CreateLogger();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
-
 builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -69,7 +57,6 @@ builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
@@ -122,12 +109,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
-    RequestPath = "/Images"
-});
 
 app.MapControllers();
 

@@ -14,13 +14,11 @@ namespace GeekStore.API.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly ILogger<CategoriesController> _logger;
-
-        public CategoriesController(IMapper mapper, ICategoryRepository categoryRepository, ILogger<CategoriesController> logger)
+        
+        public CategoriesController(IMapper mapper, ICategoryRepository categoryRepository)
         {
             _mapper = mapper;
             _categoryRepository = categoryRepository;
-            _logger = logger;
         }
         //CRUD
         // POST: https://localhost/categories/
