@@ -1,8 +1,6 @@
 ﻿using GeekStore.API.Data;
 using GeekStore.API.Models.Domains;
-using GeekStore.API.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace GeekStore.API.Repositories
 {
