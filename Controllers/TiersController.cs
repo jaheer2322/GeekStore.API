@@ -42,7 +42,7 @@ namespace GeekStore.API.Controllers
 
         // GET: https://localhost/api/tiers
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+        //[Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll()
         {
             var tiersDomain = await _tierRepository.GetAllAsync();

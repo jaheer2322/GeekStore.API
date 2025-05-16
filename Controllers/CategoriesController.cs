@@ -40,7 +40,7 @@ namespace GeekStore.API.Controllers
         }
         // GET: https://localhost/categories/
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+        //[Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll()
         {
             var categories = await _categoryRepository.GetAllAsync();
