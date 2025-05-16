@@ -51,7 +51,6 @@ namespace GeekStore.API.Controllers
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? queryFilter, 
             [FromQuery] string? sortBy, [FromQuery] bool isAscending = true, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
-{
             // Check if any extra query parameters are passed
             var extraParameters = HttpContext.Request.Query.Keys.Except(allowedParameters, StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -83,7 +82,7 @@ namespace GeekStore.API.Controllers
             var productDtos = _mapper.Map<List<ProductDto>>(products);
 
             // Return fetched products
-            return Ok(productDtos);}
+            return Ok(productDtos);
         }
         
         // GET: https://localhost/api/products/{id}
