@@ -57,7 +57,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Scoped and short-lived, new instance of dbContext is created for each http request
 builder.Services.AddDbContext<GeekStoreDbContext>(options => 
-options.UseSqlServer(builder.Configuration.GetConnectionString("GeekStoreConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("GeekStoreConnectionString")));
 
 builder.Services.AddDbContext<GeekStoreAuthDbContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("GeekStoreAuthDbConnectionString")));
@@ -95,8 +95,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 builder.Configuration["Jwt:Key"])),

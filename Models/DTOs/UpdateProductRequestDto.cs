@@ -15,6 +15,9 @@ namespace GeekStore.API.Models.DTOs
         [Range(1, 1000000)]
         public double Price { get; set; }
         [Required]
+        [Range(1, 1000000)]
+        public int Quantity { get; set; }
+        [Required]
         public Guid TierId { get; set; }
         [Required]
         public Guid CategoryId { get; set; }

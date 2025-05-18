@@ -17,6 +17,7 @@ namespace GeekStore.API.Data
 
             var readerRoleId = "cf330825-ba85-43bc-9d1b-3d52286bc775";
             var writerRoleId = "d3f66143-a96c-4f19-950d-a3b99f20a35b";
+            var adminRoleId = "37798ece-bdaa-4764-9450-c2dcf7548a2f";
 
             var roles = new List<IdentityRole>
             {
@@ -33,6 +34,13 @@ namespace GeekStore.API.Data
                     ConcurrencyStamp = writerRoleId,
                     Name = "Writer",
                     NormalizedName = "Writer".ToUpper()
+                },
+                new IdentityRole
+                {
+                    Id = adminRoleId,
+                    ConcurrencyStamp = adminRoleId,
+                    Name = "Admin",
+                    NormalizedName = "Admin".ToUpper()
                 }
             };
 

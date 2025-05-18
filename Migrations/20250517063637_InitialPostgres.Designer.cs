@@ -3,63 +3,105 @@ using System;
 using GeekStore.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace GeekStore.API.Migrations
 {
     [DbContext(typeof(GeekStoreDbContext))]
-    [Migration("20250101184520_Seeding data")]
-    partial class Seedingdata
+    [Migration("20250517063637_InitialPostgres")]
+    partial class InitialPostgres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("GeekStore.API.Models.Domains.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("6a3fb4b3-2c2b-4f0e-8cbb-9b4d914729b1"),
+                            Name = "CPU"
+                        },
+                        new
+                        {
+                            Id = new Guid("1992b5e0-7888-476b-a46d-ce812e8d7b6d"),
+                            Name = "GPU"
+                        },
+                        new
+                        {
+                            Id = new Guid("9e336f6c-e645-49a7-bd6f-38f79cdf548a"),
+                            Name = "PSU"
+                        },
+                        new
+                        {
+                            Id = new Guid("8499e196-2cb1-45ad-b7bd-a82a0bb48745"),
+                            Name = "Motherboard"
+                        },
+                        new
+                        {
+                            Id = new Guid("5ec4a3f7-b00a-47a3-aa3d-d946030ca55c"),
+                            Name = "Ram"
+                        },
+                        new
+                        {
+                            Id = new Guid("be730ab1-9f45-41ab-a094-bc1b8a301a03"),
+                            Name = "Graphics card"
+                        },
+                        new
+                        {
+                            Id = new Guid("a24ad4ff-ad4a-4dd7-8ac0-53a6216ab93f"),
+                            Name = "Miscellaneous"
+                        });
                 });
 
             modelBuilder.Entity("GeekStore.API.Models.Domains.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<double>("Price")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision");
 
                     b.Property<Guid>("TierId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("TierId");
 
@@ -70,14 +112,11 @@ namespace GeekStore.API.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -103,11 +142,19 @@ namespace GeekStore.API.Migrations
 
             modelBuilder.Entity("GeekStore.API.Models.Domains.Product", b =>
                 {
+                    b.HasOne("GeekStore.API.Models.Domains.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GeekStore.API.Models.Domains.Tier", "Tier")
                         .WithMany()
                         .HasForeignKey("TierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("Tier");
                 });

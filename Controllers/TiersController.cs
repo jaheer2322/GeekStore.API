@@ -42,7 +42,7 @@ namespace GeekStore.API.Controllers
 
         // GET: https://localhost/api/tiers
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var tiersDomain = await _tierRepository.GetAllAsync();
@@ -54,7 +54,7 @@ namespace GeekStore.API.Controllers
         // GET: https://localhost/api/tiers/{id}
         [HttpGet]
         [Route("{id}")]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var tier = await _tierRepository.GetByIDAsync(id);
@@ -69,7 +69,7 @@ namespace GeekStore.API.Controllers
         [HttpPut]
         [Route("{id}")]
         [ValidateModelAttribute]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTierRequestDto updateTierRequestDto)
         {
             var tier = _mapper.Map<Tier>(updateTierRequestDto);
@@ -85,7 +85,7 @@ namespace GeekStore.API.Controllers
         // DELETE: https://localhost/api/tiers/{id}
         [HttpDelete]
         [Route("{id}")]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var deletedTier = await _tierRepository.DeleteAsync(id);

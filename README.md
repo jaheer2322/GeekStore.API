@@ -9,7 +9,7 @@ This project is built using **ASP.NET Core Web API** with **Entity Framework Cor
 
 ---
 
-### **Controllers**
+### **EndPoints**
 
 The controllers handle incoming HTTP requests and interact with repositories to fetch or modify data.
 

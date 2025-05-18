@@ -24,7 +24,7 @@ namespace GeekStore.API.Controllers
         // POST: https://localhost/categories/
         [HttpPost]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] AddCategoryRequestDto addCategoryRequestDto)
         {
             var category = _mapper.Map<Category>(addCategoryRequestDto);
@@ -40,7 +40,7 @@ namespace GeekStore.API.Controllers
         }
         // GET: https://localhost/categories/
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var categories = await _categoryRepository.GetAllAsync();
@@ -51,7 +51,7 @@ namespace GeekStore.API.Controllers
         // GET: https://localhost/categories/{id}
         [HttpGet]
         [Route("{id}")]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
@@ -66,7 +66,7 @@ namespace GeekStore.API.Controllers
         [HttpPut]
         [Route("{id}")]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryRequestDto updateCategoryRequestDto)
         {
             var updatedCategory = _mapper.Map<Category>(updateCategoryRequestDto);
@@ -81,7 +81,7 @@ namespace GeekStore.API.Controllers
         // DELETE: https://localhost/categories/{id}
         [HttpDelete]
         [Route("{id}")]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var category = await _categoryRepository.DeleteAsync(id);

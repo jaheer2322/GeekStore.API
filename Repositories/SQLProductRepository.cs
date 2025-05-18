@@ -26,6 +26,28 @@ namespace GeekStore.API.Repositories
 
             return createdProduct;
         }
+
+        public async Task<List<Product>?> CreateMultipleAsync(List<Product> products)
+        {
+            await _geekStoreDbContext.Products.AddRangeAsync(products);
+            await _geekStoreDbContext.SaveChangesAsync();
+
+            var productIds = products.Select(p => p.Id).ToList();
+
+            var createdProducts = await _geekStoreDbContext.Products
+                .Include(p => p.Tier)
+                .Include(p => p.Category)
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync();
+
+            if (createdProducts == null)
+            {
+                return null;
+            }
+            
+            return createdProducts;
+        }
+
         public async Task<List<Product>> GetAllAsync(string? column, string? query, 
             string? sortBy, bool isAscending, int pageNumber, int pageSize)
         {

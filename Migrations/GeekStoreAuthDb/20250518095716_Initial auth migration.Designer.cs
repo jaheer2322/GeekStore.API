@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GeekStore.API.Migrations.GeekStoreAuthDb
 {
     [DbContext(typeof(GeekStoreAuthDbContext))]
-    [Migration("20250106181708_Seeding Auth Database")]
-    partial class SeedingAuthDatabase
+    [Migration("20250518095716_Initial auth migration")]
+    partial class Initialauthmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -65,6 +65,13 @@ namespace GeekStore.API.Migrations.GeekStoreAuthDb
                             ConcurrencyStamp = "d3f66143-a96c-4f19-950d-a3b99f20a35b",
                             Name = "Writer",
                             NormalizedName = "WRITER"
+                        },
+                        new
+                        {
+                            Id = "37798ece-bdaa-4764-9450-c2dcf7548a2f",
+                            ConcurrencyStamp = "37798ece-bdaa-4764-9450-c2dcf7548a2f",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
                         });
                 });
 

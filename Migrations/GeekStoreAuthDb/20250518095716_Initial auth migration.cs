@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GeekStore.API.Migrations.GeekStoreAuthDb
 {
     /// <inheritdoc />
-    public partial class SeedingAuthDatabase : Migration
+    public partial class Initialauthmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -163,6 +163,7 @@ namespace GeekStore.API.Migrations.GeekStoreAuthDb
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
+                    { "37798ece-bdaa-4764-9450-c2dcf7548a2f", "37798ece-bdaa-4764-9450-c2dcf7548a2f", "Admin", "ADMIN" },
                     { "cf330825-ba85-43bc-9d1b-3d52286bc775", "cf330825-ba85-43bc-9d1b-3d52286bc775", "Reader", "READER" },
                     { "d3f66143-a96c-4f19-950d-a3b99f20a35b", "d3f66143-a96c-4f19-950d-a3b99f20a35b", "Writer", "WRITER" }
                 });

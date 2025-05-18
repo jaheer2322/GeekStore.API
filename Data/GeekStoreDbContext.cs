@@ -18,6 +18,11 @@ namespace GeekStore.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Indexing products
+            modelBuilder.Entity<Product>()
+            .HasIndex(p => new { p.Name, p.CategoryId, p.TierId })
+            .IsUnique();
+
             var tiers = new List<Tier>()
             {
                 new Tier

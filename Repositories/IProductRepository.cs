@@ -10,5 +10,6 @@ namespace GeekStore.API.Repositories
         Task<Product?> CreateAsync(Product product);
         Task<Product?> UpdateAsync(Guid id, Product updatedProduct);
         Task<Product?> DeleteAsync(Guid id);
+        Task<List<Product>?> CreateMultipleAsync(List<Product> products);
     }
 }
