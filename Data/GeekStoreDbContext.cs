@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using GeekStore.API.Models.Domains;
+using Pgvector;
 
 namespace GeekStore.API.Data
 {
@@ -17,6 +18,16 @@ namespace GeekStore.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasPostgresExtension("vector");
+            
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Embedding)
+                .HasColumnType("vector(768)")
+                .HasConversion(
+                    v => v, // store
+                    v => new Vector(v.ToArray()) // retrieve
+                );
 
             // Indexing products
             modelBuilder.Entity<Product>()

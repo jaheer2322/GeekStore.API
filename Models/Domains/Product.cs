@@ -1,4 +1,7 @@
-﻿namespace GeekStore.API.Models.Domains
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Pgvector;
+
+namespace GeekStore.API.Models.Domains
 {
     public class Product
     {
@@ -9,6 +12,9 @@
         public int Quantity { get; set; }
         public Guid TierId { get; set; }
         public Guid CategoryId {  get; set; }
+
+        [Column(TypeName = "vector(768)")]
+        public Vector? Embedding { get; set; }
 
         //Navigation props
         public Tier Tier { get; set; }
