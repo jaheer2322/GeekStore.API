@@ -1,6 +1,7 @@
 ﻿using GeekStore.API.Data;
 using GeekStore.API.Models.Domains;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 
 namespace GeekStore.API.Repositories
 {
@@ -131,6 +132,17 @@ namespace GeekStore.API.Repositories
             await _geekStoreDbContext.SaveChangesAsync();
             
             return product;
+        }
+
+        public async Task SaveEmbeddingAsync(Guid productId, Vector embedding)
+        {
+            var product = await _geekStoreDbContext.Products.FindAsync(productId);
+
+            if (product == null)
+                throw new KeyNotFoundException($"Product not found for id {productId}");
+
+            product.Embedding = embedding;
+            await _geekStoreDbContext.SaveChangesAsync();
         }
     }
 }

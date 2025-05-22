@@ -11,6 +11,7 @@ using GeekStore.API.Middlewares;
 using Serilog;
 using DotNetEnv;
 using GeekStore.API.Services;
+using GeekStore.API.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Register the background queue interface
+builder.Services.AddSingleton<EmbeddingQueue>();
+builder.Services.AddSingleton<IEmbeddingQueue>(sp => sp.GetRequiredService<EmbeddingQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<EmbeddingQueue>());
+
 // Scoped and short-lived, new instance of dbContext is created for each http request
 builder.Services.AddDbContext<GeekStoreDbContext>(options => options.UseNpgsql(
     Environment.GetEnvironmentVariable("GeekStoreConnectionString"),
@@ -71,6 +77,7 @@ options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnecti
 
 // Adding instances to dependency injection container
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();

@@ -1,5 +1,6 @@
 ﻿using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
+using Pgvector;
 
 namespace GeekStore.API.Repositories
 {
@@ -11,5 +12,6 @@ namespace GeekStore.API.Repositories
         Task<Product?> UpdateAsync(Guid id, Product updatedProduct);
         Task<Product?> DeleteAsync(Guid id);
         Task<List<Product>?> CreateMultipleAsync(List<Product> products);
+        Task SaveEmbeddingAsync(Guid productId, Vector embedding);
     }
 }
