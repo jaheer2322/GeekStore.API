@@ -3,6 +3,7 @@ using GeekStore.API.CustomActionFilters;
 using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
 using GeekStore.API.Repositories;
+using GeekStore.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +14,15 @@ namespace GeekStore.API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
         // List of allowed query parameters for getAll request
         private readonly List<string> allowedParameters = new List<string> { "filterOn", "queryFilter", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
-        public ProductsController(IProductRepository productRepository, IMapper mapper) {
+        public ProductsController(IProductService productService, IProductRepository productRepository, IMapper mapper) {
+            _productService = productService;
             _productRepository = productRepository;
             _mapper = mapper;
         }
@@ -33,8 +36,9 @@ namespace GeekStore.API.Controllers
             // Create new product with the given params
             var product = _mapper.Map<Product>(createProductDto);
 
-            // Add and save to db
-            product = await _productRepository.CreateAsync(product);
+            // Call the service to save the product
+            product = await _productService.CreateAsync(product);
+
             if(product == null)
             {
                 return BadRequest("Product creation failed");

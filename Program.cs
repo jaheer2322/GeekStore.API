@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using GeekStore.API.Middlewares;
 using Serilog;
 using DotNetEnv;
+using GeekStore.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,7 @@ builder.Services.AddDbContext<GeekStoreAuthDbContext>(options =>
 options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnectionString")));
 
 // Adding instances to dependency injection container
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
