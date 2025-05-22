@@ -9,8 +9,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using GeekStore.API.Middlewares;
 using Serilog;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables from .env file
+var environmentalVariables = Env.Load();
+foreach (var keyValue in environmentalVariables)
+{
+    Environment.SetEnvironmentVariable(keyValue.Key, keyValue.Value);
+}
 
 // Adding services to the DI container.
 
@@ -56,11 +64,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Scoped and short-lived, new instance of dbContext is created for each http request
-builder.Services.AddDbContext<GeekStoreDbContext>(options => 
-options.UseNpgsql(builder.Configuration.GetConnectionString("GeekStoreConnectionString")));
+builder.Services.AddDbContext<GeekStoreDbContext>(options => options.UseNpgsql(
+    Environment.GetEnvironmentVariable("GeekStoreConnectionString"),
+    o => o.UseVector())
+);
 
 builder.Services.AddDbContext<GeekStoreAuthDbContext>(options => 
-options.UseSqlServer(builder.Configuration.GetConnectionString("GeekStoreAuthDbConnectionString")));
+options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnectionString")));
 
 // Adding instances to dependency injection container
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
@@ -94,12 +104,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidIssuer = Environment.GetEnvironmentVariable("JWT_Issuer"),
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidAudience = Environment.GetEnvironmentVariable("JWT_Audience"),
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                builder.Configuration["Jwt:Key"])),
+                Environment.GetEnvironmentVariable("JWT_Key"))),
             ValidateLifetime = true
         };
     });
