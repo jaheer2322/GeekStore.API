@@ -14,11 +14,7 @@ using DotNetEnv;
 var builder = WebApplication.CreateBuilder(args);
 
 // Load environment variables from .env file
-var environmentalVariables = Env.Load();
-foreach (var keyValue in environmentalVariables)
-{
-    Environment.SetEnvironmentVariable(keyValue.Key, keyValue.Value);
-}
+Env.Load();
 
 // Adding services to the DI container.
 
