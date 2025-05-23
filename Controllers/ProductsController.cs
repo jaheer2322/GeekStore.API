@@ -30,7 +30,7 @@ namespace GeekStore.API.Controllers
         // POST: https://localhost/api/products
         [HttpPost]
         [ValidateModelAttribute]
-        [Authorize(Roles = "Writer,Admin")]
+        //[Authorize(Roles = "Writer,Admin")]
         public async Task<IActionResult> Create([FromBody] AddProductRequestDto createProductDto)
         {
             // Create new product with the given params

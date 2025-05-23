@@ -11,10 +11,9 @@ This project is built using **ASP.NET Core Web API** with **Entity Framework Cor
 
 ### **Authentication EndPoints**
 
-
-
-
-Purpose: Manages user authentication and authorization tasks such as user registration and login.
+- **Purpose**: Manages user authentication and authorization tasks such as user registration and login.
+	- **POST** `/api/auth/register`: Registers a new user with specified roles.
+	- **POST** `/api/auth/login`: Authenticates a user and returns a JWT token for further requests.
 
 
 ### **Consumer EndPoints**
