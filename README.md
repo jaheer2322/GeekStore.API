@@ -12,8 +12,8 @@ This project is built using **ASP.NET Core Web API** with **Entity Framework Cor
 ### **Authentication EndPoints**
 
 - **Purpose**: Manages user authentication and authorization tasks such as user registration and login.
-	- **POST** `/api/auth/register`: Registers a new user with specified roles.
-	- **POST** `/api/auth/login`: Authenticates a user and returns a JWT token for further requests.
+	- **POST** `/api/auth/register`: Registers a new user with specified roles. (No role required)
+	- **POST** `/api/auth/login`: Authenticates a user and returns a JWT token for further requests. (No role required)
 
 
 ### **Consumer EndPoints**
@@ -32,16 +32,16 @@ The controllers handle incoming HTTP requests and interact with repositories to 
 #### 1. `ProductsController.cs`
 - **Purpose**: Manages the CRUD operations for products in the system.
 - **Key Endpoints**:
-  - **POST `/api/products`**: Creates a new product (Least role required is Writer).
-  - **GET `/api/products`**: Retrieves a list of products with filtering, sorting, and pagination options. (Least role required is Reader).
+  - **POST `/api/products`**: Creates a new product.
+  - **GET `/api/products`**: Retrieves a list of products with filtering, sorting, and pagination options.
   - **GET `/api/products/{id}`**: Retrieves a product by its ID.
-  - **PUT `/api/products/{id}`**: Updates an existing product. (Least role required is Writer)
-  - **DELETE `/api/products/{id}`**: Deletes a product. (Least role required is Writer)
+  - **PUT `/api/products/{id}`**: Updates an existing product.
+  - **DELETE `/api/products/{id}`**: Deletes a product.
 
 #### 2. `TiersController.cs`
 - **Purpose**: Manages CRUD operations for tiers, which categorize products into "Low end", "Mid end", or "High end".
 - **Key Endpoints**:
-  - **POST `/api/tiers`**: Creates a new tier (Least role required is Writer).
+  - **POST `/api/tiers`**: Creates a new tier.
   - **GET `/api/tiers`**: Retrieves all available tiers.
   - **GET `/api/tiers/{id}`**: Retrieves a specific tier by its ID.
   - **PUT `/api/tiers/{id}`**: Updates a tier.
