@@ -12,6 +12,8 @@ using Serilog;
 using DotNetEnv;
 using GeekStore.API.Services;
 using GeekStore.API.Service;
+using GroqApiLibrary;
+using Python.Runtime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,11 @@ options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnecti
 // Adding instances to dependency injection container
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
+
+builder.Services.AddScoped<ILLMService, GroqLLMService>();
+builder.Services.AddScoped<GroqApiClient>(sp =>
+    new GroqApiClient(Environment.GetEnvironmentVariable("GroqApiKey")));
+
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
@@ -136,5 +143,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Runtime.PythonDLL = Environment.GetEnvironmentVariable("PythonDLLPath");
+
+_ = PythonEngineSingleton.Instance;
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    PythonEngineSingleton.Instance.Shutdown();
+});
 
 app.Run();

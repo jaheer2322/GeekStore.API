@@ -13,7 +13,7 @@ namespace GeekStore.API.Models.Domains
         public Guid TierId { get; set; }
         public Guid CategoryId {  get; set; }
 
-        [Column(TypeName = "vector(768)")]
+        [Column(TypeName = "vector(384)")]
         public Vector? Embedding { get; set; }
 
         //Navigation props

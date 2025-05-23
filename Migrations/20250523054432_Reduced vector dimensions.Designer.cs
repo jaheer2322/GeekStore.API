@@ -3,6 +3,7 @@ using System;
 using GeekStore.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace GeekStore.API.Migrations
 {
     [DbContext(typeof(GeekStoreDbContext))]
-    partial class GeekStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523054432_Reduced vector dimensions")]
+    partial class Reducedvectordimensions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,7 +92,7 @@ namespace GeekStore.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<Vector>("Embedding")
-                        .HasColumnType("vector(384)");
+                        .HasColumnType("vector(380)");
 
                     b.Property<string>("Name")
                         .IsRequired()

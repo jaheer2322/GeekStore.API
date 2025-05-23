@@ -23,7 +23,7 @@ namespace GeekStore.API.Data
             
             modelBuilder.Entity<Product>()
                 .Property(p => p.Embedding)
-                .HasColumnType("vector(768)")
+                .HasColumnType("vector(384)")
                 .HasConversion(
                     v => v, // store
                     v => new Vector(v.ToArray()) // retrieve
