@@ -22,7 +22,6 @@ namespace GeekStore.API.Services
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("Background service started"); // Should appear in console
             await foreach (var (productId, text) in _queue.Reader.ReadAllAsync(stoppingToken))
             { 
                 try
