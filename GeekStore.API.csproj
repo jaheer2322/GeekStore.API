@@ -36,7 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\Architecture\" />
     <Folder Include="Logs\" />
     <Folder Include="Migrations\GeekStoreAuthDb\" />
   </ItemGroup>
