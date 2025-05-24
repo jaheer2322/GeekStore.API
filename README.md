@@ -1,71 +1,103 @@
 # GeekStore API
 
+![Demo of GeekStore Recommendation Flow](./Assets/Architecture/ProductCreationCodeFlow.gif)
+
 ## Description
-GeekStore is an API-based platform focused on managing products, tiers and categories of computer hardware. The API allows users to interact with product data, categorize them and manage their tier classifications. It includes authentication and authorization features, enabling users with different roles to perform various operations like creating, reading, updating, and deleting (CRUD) data.
 
-## Project Structure
+GeekStore is an API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
 
-This project is built using **ASP.NET Core Web API** with **Entity Framework Core** for database interaction. The following sections explain the core components of the project:
+This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
 
 ---
+
 ## Contents
-- **Endpoint details**
-- **Animated Architectural Codeflow for deeper understanding**
+
+- Authentication Endpoints
+- Consumer Endpoints (Products, Categories, Tiers)
+- Recommendation Engine (AI-Powered)
+- Animated Architecture Flow
+
 ---
-### **Authentication EndPoints**
 
-- **Purpose**: Manages user authentication and authorization tasks such as user registration and login.
-	- **POST** `/api/auth/register`: Registers a new user with specified roles. (No role required)
-	- **POST** `/api/auth/login`: Authenticates a user and returns a JWT token for further requests. (No role required)
+## Authentication Endpoints
 
+Handles user identity management.
 
-### **Consumer EndPoints**
+| HTTP Method | Endpoint             | Description                              | Role Required |
+|-------------|----------------------|------------------------------------------|----------------|
+| POST        | /api/auth/register   | Register a new user with roles           | None           |
+| POST        | /api/auth/login      | Authenticate user and return JWT token   | None           |
 
-The controllers handle incoming HTTP requests and interact with repositories to fetch or modify data.
+---
+
+## Consumer Endpoints
+
+Controllers manage CRUD operations on different resources. Role-based access control is enforced.
+
 **Roles**: Admin, Writer, Reader
-#### `Overview`
-| *HTTP Method* | *Endpoint*         | *Minimum Role* |
-|-------------|------------------|---------------|
-| POST        | /resource        | Writer        |
-| GET         | /resource/{id}   | Reader        |
-| GET         | /resource        | Reader        |
-| PUT         | /resource/{id}   | Writer        |
-| DELETE      | /resource/{id}   | Writer        |
 
-#### 1. `ProductsController.cs`
-- **Purpose**: Manages the CRUD operations for products in the system.
-- **Key Endpoints**:
-  - **POST `/api/products`**: Creates a new product.
-  - **GET `/api/products`**: Retrieves a list of products with filtering, sorting, and pagination options.
-  - **GET `/api/products/{id}`**: Retrieves a product by its ID.
-  - **PUT `/api/products/{id}`**: Updates an existing product.
-  - **DELETE `/api/products/{id}`**: Deletes a product.
+| HTTP Method | Endpoint             | Minimum Role |
+|-------------|----------------------|---------------|
+| POST        | /api/resource         | Writer        |
+| GET         | /api/resource/{id}    | Reader        |
+| GET         | /api/resource         | Reader        |
+| PUT         | /api/resource/{id}    | Writer        |
+| DELETE      | /api/resource/{id}    | Writer        |
 
-#### 2. `TiersController.cs`
-- **Purpose**: Manages CRUD operations for tiers, which categorize products into "Low end", "Mid end", or "High end".
+### 1. ProductsController
+- **Purpose**: Handles product-related operations.
 - **Key Endpoints**:
-  - **POST `/api/tiers`**: Creates a new tier.
-  - **GET `/api/tiers`**: Retrieves all available tiers.
-  - **GET `/api/tiers/{id}`**: Retrieves a specific tier by its ID.
-  - **PUT `/api/tiers/{id}`**: Updates a tier.
-  - **DELETE `/api/tiers/{id}`**: Deletes a tier.
+  - `POST /api/products`
+  - `GET /api/products`
+  - `GET /api/products/{id}`
+  - `PUT /api/products/{id}`
+  - `DELETE /api/products/{id}`
 
-#### 3. `CategoriesController.cs`
-- **Purpose**: Manages CRUD operations for categories, such as "CPU", "GPU", etc., which classify products.
+### 2. TiersController
+- **Purpose**: Manages tiers like Low-end, Mid-end, and High-end.
 - **Key Endpoints**:
-  - **POST `/api/categories`**: Creates a new category.
-  - **GET `/api/categories`**: Retrieves all categories.
-  - **GET `/api/categories/{id}`**: Retrieves a specific category by its ID.
-  - **PUT `/api/categories/{id}`**: Updates a category.
-  - **DELETE `/api/categories/{id}`**: Deletes a category.
+  - `POST /api/tiers`
+  - `GET /api/tiers`
+  - `GET /api/tiers/{id}`
+  - `PUT /api/tiers/{id}`
+  - `DELETE /api/tiers/{id}`
 
-#### 4. `AuthController.cs`
-- **Purpose**: Handles authentication and authorization for the system.
+### 3. CategoriesController
+- **Purpose**: Handles component categories like CPU, GPU, etc.
 - **Key Endpoints**:
-  - **POST `/api/auth/register`**: Registers a new user with assigned roles.
-  - **POST `/api/auth/login`**: Logs in an existing user and generates a JWT token for authentication.
+  - `POST /api/categories`
+  - `GET /api/categories`
+  - `GET /api/categories/{id}`
+  - `PUT /api/categories/{id}`
+  - `DELETE /api/categories/{id}`
+
+### 4. AuthController
+- **Purpose**: Manages user authentication and role assignment.
+- **Key Endpoints**:
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
 
 ---
-### Under the hood 
-#### Product Creation Codeflow
+
+## Recommendation Engine
+
+A cutting-edge feature that helps users build optimized PC configurations using natural language queries.
+
+### How it Works
+
+1. The user provides a natural language input (e.g., *"I need a gaming PC under 1 Lakh rupees with a strong GPU"*).
+2. The query is embedded using a Python microservice via the `IEmbeddingService`.
+3. The embedded vector is used for a **cosine similarity search** using `pgvector` in PostgreSQL.
+4. Top similar products are selected across each category.
+5. The list is passed to a **Groq LLM**, which returns **two optimized build configurations** (as product ID lists).
+6. Final product details are fetched and returned as a complete PC build recommendation.
+
+---
+
+## Animated Architecture Codeflow
+
+### Product Creation Flow
 ![Product Creation Codeflow](./Assets/Architecture/ProductCreationCodeFlow.gif)
+
+---
+
