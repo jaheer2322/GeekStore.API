@@ -61,3 +61,8 @@ The controllers handle incoming HTTP requests and interact with repositories to 
 - **Key Endpoints**:
   - **POST `/api/auth/register`**: Registers a new user with assigned roles.
   - **POST `/api/auth/login`**: Logs in an existing user and generates a JWT token for authentication.
+
+---
+### Under the hood 
+#### Product Creation Codeflow
+![Product Creation Codeflow](./Assets/Architecture/ProductCreationCodeflow.png)
