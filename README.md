@@ -8,7 +8,10 @@ GeekStore is an API-based platform focused on managing products, tiers and categ
 This project is built using **ASP.NET Core Web API** with **Entity Framework Core** for database interaction. The following sections explain the core components of the project:
 
 ---
-
+## Contents
+- **Endpoint details**
+- **Animated Architectural Codeflow for deeper understanding**
+---
 ### **Authentication EndPoints**
 
 - **Purpose**: Manages user authentication and authorization tasks such as user registration and login.
