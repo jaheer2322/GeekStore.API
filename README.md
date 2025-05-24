@@ -65,4 +65,4 @@ The controllers handle incoming HTTP requests and interact with repositories to 
 ---
 ### Under the hood 
 #### Product Creation Codeflow
-![Product Creation Codeflow](./Assets/Architecture/ProductCreationCodeflow.gif)
+![Product Creation Codeflow](./Assets/Architecture/ProductCreationCodeFlow.gif)
