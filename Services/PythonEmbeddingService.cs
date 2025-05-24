@@ -1,11 +1,10 @@
-﻿using System.Globalization;
-using GeekStore.API.Service;
+﻿using GeekStore.API.Service;
 using Pgvector;
 using Python.Runtime;
 
 namespace GeekStore.API.Services
 {
-    public class EmbeddingService : IEmbeddingService
+    public class PythonEmbeddingService : IEmbeddingService
     {
         public async Task<Vector> GenerateEmbeddingAsync(string text)
         {

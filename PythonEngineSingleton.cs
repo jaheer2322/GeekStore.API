@@ -8,7 +8,7 @@ public sealed class PythonEngineSingleton
 
     private PythonEngineSingleton()
     {
-        Console.WriteLine("Initializing Python and its dependencies");
+        Console.WriteLine("Initializing Python and its dependencies... This can take upto a minute");
 
         var stopwatch = Stopwatch.StartNew();
 

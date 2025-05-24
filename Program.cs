@@ -79,7 +79,7 @@ options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnecti
 
 // Adding instances to dependency injection container
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IEmbeddingService, EmbeddingService>();
+builder.Services.AddScoped<IEmbeddingService, PythonEmbeddingService>();
 
 builder.Services.AddScoped<ILLMService, GroqLLMService>();
 builder.Services.AddScoped<GroqApiClient>(sp =>
