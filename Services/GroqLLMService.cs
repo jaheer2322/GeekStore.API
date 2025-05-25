@@ -1,4 +1,6 @@
 ﻿using System.Text.Json.Nodes;
+using GeekStore.API.Models.Domains;
+using GeekStore.API.Services.Interfaces;
 using GroqApiLibrary;
 
 namespace GeekStore.API.Services
@@ -11,40 +13,37 @@ namespace GeekStore.API.Services
         {
             _groqApiClient = groqApiClient;
         }
-        public async Task<string> GenerateRecommendationAsync(string text)
+        public async Task<string> GenerateRecommendationAsync(string systemPrompt, string query, string availableProducts)
         {
-            string embeddingSystemPrompt = "";
-            
             var request = new JsonObject
             {
                 ["model"] = _llmModel,
-                ["max_tokens"] = 2048,
                 ["temperature"] = 0,
                 ["messages"] = new JsonArray
                 {
                     new JsonObject
                     {
                         ["role"] = "system",
-                        ["content"] = embeddingSystemPrompt
+                        ["content"] = systemPrompt
                     },
                     new JsonObject
                     {
                         ["role"] = "user",
-                        ["content"] = text
+                        ["content"] = $"User query: {query} \nAvailable products: {availableProducts}"
                     }
                 }
 
             };
 
             var result = await _groqApiClient.CreateChatCompletionAsync(request);
-            string? embeddingString = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+            string? recommededProducts = result?["choices"]?[0]?["message"]?["content"]?.ToString();
 
-            if(embeddingString == null)
+            if(recommededProducts == null)
             {
                 throw new Exception("Failed to generate embedding");
             }
 
-            return embeddingString;
+            return recommededProducts;
         }
     }
 }

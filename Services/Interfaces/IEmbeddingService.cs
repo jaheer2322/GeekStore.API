@@ -1,5 +1,5 @@
 ﻿using Pgvector;
-namespace GeekStore.API.Service
+namespace GeekStore.API.Services.Interfaces
 {
     public interface IEmbeddingService
     {

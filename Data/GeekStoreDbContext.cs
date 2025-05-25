@@ -92,6 +92,11 @@ namespace GeekStore.API.Data
                     Id = Guid.Parse("a24ad4ff-ad4a-4dd7-8ac0-53a6216ab93f"),
                     Name = "Miscellaneous"
                 },
+                new Category
+                {
+                    Id = Guid.Parse("f3837690-22ec-4c6a-9cf2-8147273344f5"),
+                    Name = "Storage"
+                }
             };
 
             modelBuilder.Entity<Category>().HasData(categories);

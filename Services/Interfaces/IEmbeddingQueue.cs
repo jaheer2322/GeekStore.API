@@ -1,4 +1,4 @@
-﻿namespace GeekStore.API.Services
+﻿namespace GeekStore.API.Services.Interfaces
 {
     public interface IEmbeddingQueue
     {

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GeekStore.API.Models.DTOs;
 using GeekStore.API.Models.Domains;
-using GeekStore.API.Repositories;
 using AutoMapper;
 using GeekStore.API.CustomActionFilters;
 using Microsoft.AspNetCore.Authorization;
+using GeekStore.API.Repositories.Interfaces;
 
 namespace GeekStore.API.Controllers
 {

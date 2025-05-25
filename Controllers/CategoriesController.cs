@@ -2,7 +2,7 @@
 using GeekStore.API.CustomActionFilters;
 using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
-using GeekStore.API.Repositories;
+using GeekStore.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

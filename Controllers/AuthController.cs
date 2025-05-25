@@ -1,5 +1,5 @@
 ﻿using GeekStore.API.Models.DTOs;
-using GeekStore.API.Repositories;
+using GeekStore.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

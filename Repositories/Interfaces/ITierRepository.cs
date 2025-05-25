@@ -1,6 +1,6 @@
 ﻿using GeekStore.API.Models.Domains;
 
-namespace GeekStore.API.Repositories
+namespace GeekStore.API.Repositories.Interfaces
 {
     public interface ITierRepository
     {

@@ -1,6 +1,7 @@
 ﻿using System.Reflection.Metadata.Ecma335;
 using GeekStore.API.Data;
 using GeekStore.API.Models.Domains;
+using GeekStore.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GeekStore.API.Repositories

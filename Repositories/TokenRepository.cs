@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using DotNetEnv;
+using GeekStore.API.Repositories.Interfaces;
 
 namespace GeekStore.API.Repositories
 {

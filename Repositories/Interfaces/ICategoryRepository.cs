@@ -1,7 +1,7 @@
 ﻿using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
 
-namespace GeekStore.API.Repositories
+namespace GeekStore.API.Repositories.Interfaces
 {
     public interface ICategoryRepository
     {

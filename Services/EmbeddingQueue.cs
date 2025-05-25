@@ -1,7 +1,7 @@
 ﻿
 using System.Threading.Channels;
-using GeekStore.API.Repositories;
-using GeekStore.API.Service;
+using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 
 namespace GeekStore.API.Services
 {

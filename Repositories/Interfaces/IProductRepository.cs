@@ -1,8 +1,7 @@
 ﻿using GeekStore.API.Models.Domains;
-using GeekStore.API.Models.DTOs;
 using Pgvector;
 
-namespace GeekStore.API.Repositories
+namespace GeekStore.API.Repositories.Interfaces
 {
     public interface IProductRepository
     {
@@ -11,7 +10,7 @@ namespace GeekStore.API.Repositories
         Task<Product?> CreateAsync(Product product);
         Task<Product?> UpdateAsync(Guid id, Product updatedProduct);
         Task<Product?> DeleteAsync(Guid id);
-        Task<List<Product>?> CreateMultipleAsync(List<Product> products);
         Task SaveEmbeddingAsync(Guid productId, Vector embedding);
+        Task<Dictionary<string, List<Product>>> GetSimilarProductsAsync(Vector inputVector);
     }
 }

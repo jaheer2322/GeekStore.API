@@ -1,4 +1,4 @@
-﻿using GeekStore.API.Service;
+﻿using GeekStore.API.Services.Interfaces;
 using Pgvector;
 using Python.Runtime;
 

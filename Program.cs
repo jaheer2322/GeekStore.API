@@ -11,9 +11,10 @@ using GeekStore.API.Middlewares;
 using Serilog;
 using DotNetEnv;
 using GeekStore.API.Services;
-using GeekStore.API.Service;
 using GroqApiLibrary;
 using Python.Runtime;
+using GeekStore.API.Services.Interfaces;
+using GeekStore.API.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,10 +78,9 @@ builder.Services.AddDbContext<GeekStoreDbContext>(options => options.UseNpgsql(
 builder.Services.AddDbContext<GeekStoreAuthDbContext>(options => 
 options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnectionString")));
 
-// Adding instances to dependency injection container
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IEmbeddingService, PythonEmbeddingService>();
-
 builder.Services.AddScoped<ILLMService, GroqLLMService>();
 builder.Services.AddScoped<GroqApiClient>(sp =>
     new GroqApiClient(Environment.GetEnvironmentVariable("GroqApiKey")));

@@ -1,5 +1,6 @@
 ﻿using GeekStore.API.Models.Domains;
-using GeekStore.API.Repositories;
+using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 
 namespace GeekStore.API.Services
 {
@@ -29,6 +30,22 @@ namespace GeekStore.API.Services
             _embeddingQueue.Enqueue(createdProduct.Id, embeddingString);
 
             return createdProduct;
+        }
+        public async Task<List<Product>?> CreateMultipleAsync(List<Product> products)
+        {
+            var createdProducts = new List<Product>();
+            
+            foreach (var product in products)
+            {
+                var createdProduct = await CreateAsync(product);
+                if (createdProduct == null)
+                {
+                    return null;
+                }
+                createdProducts.Add(createdProduct);
+            }
+
+            return createdProducts;
         }
     }
 }

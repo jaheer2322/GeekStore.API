@@ -2,8 +2,8 @@
 using GeekStore.API.CustomActionFilters;
 using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
-using GeekStore.API.Repositories;
-using GeekStore.API.Services;
+using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,15 +15,24 @@ namespace GeekStore.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IRecommendationService _recommendationService;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
+
+
+        private readonly List<string> queryableAndSortableColumns = new List<string> {
+                "name",
+                "tier",
+                "category"
+            };
 
         // List of allowed query parameters for getAll request
         private readonly List<string> allowedParameters = new List<string> { "filterOn", "queryFilter", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
-        public ProductsController(IProductService productService, IProductRepository productRepository, IMapper mapper) {
+        public ProductsController(IProductService productService, IProductRepository productRepository, IRecommendationService recommendationService, IMapper mapper) {
             _productService = productService;
             _productRepository = productRepository;
+            _recommendationService = recommendationService;
             _mapper = mapper;
         }
 
@@ -64,7 +73,7 @@ namespace GeekStore.API.Controllers
             var products = _mapper.Map<List<Product>>(createProductDtos);
 
             // Save to DB using repository
-            var createdProducts = await _productRepository.CreateMultipleAsync(products);
+            var createdProducts = await _productService.CreateMultipleAsync(products);
 
             if (createdProducts == null || !createdProducts.Any())
             {
@@ -90,12 +99,6 @@ namespace GeekStore.API.Controllers
             {
                 return BadRequest($"Invalid query parameters: {string.Join(", ", extraParameters)}. Allowed parameters are: {string.Join(", ", allowedParameters)}");
             }
-
-            List<string> queryableAndSortableColumns = new List<string> {
-                "name",
-                "tier",
-                "category"
-            };
 
             if (string.IsNullOrWhiteSpace(filterOn) == false && !queryableAndSortableColumns.Contains(filterOn.ToLower()))
             {
@@ -133,7 +136,22 @@ namespace GeekStore.API.Controllers
             var productDto = _mapper.Map<ProductDto>(domainProduct);
             return Ok(productDto);
         }
-        
+
+        // POST: https://localhost/api/products/recommend
+        [HttpPost("recommend")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
+        public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
+        {
+            var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO.Query);
+            
+            if(recommendations == null)
+            {
+                return NotFound("No recommendations found for the given query.");
+            }
+
+            return Ok(recommendations);
+        }
+
         // PUT: https://localhost/api/products/{id}
         [HttpPut]
         [Route("{id}")]
