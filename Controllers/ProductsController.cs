@@ -27,7 +27,7 @@ namespace GeekStore.API.Controllers
             };
 
         // List of allowed query parameters for getAll request
-        private readonly List<string> allowedParameters = new List<string> { "filterOn", "queryFilter", "sortBy", "isAscending", "pageNumber", "pageSize" };
+        private readonly List<string> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
         public ProductsController(IProductService productService, IProductRepository productRepository, IRecommendationService recommendationService, IMapper mapper) {
             _productService = productService;
@@ -86,10 +86,10 @@ namespace GeekStore.API.Controllers
             return Ok(createdProductDtos); // You could use CreatedAtAction per product if needed
         }
 
-        // GET: https://localhost/api/products?filterOn=Name&queryFilter=CPU&sortBy=Name&isAscending=true&pageNumber=1&paeSize=3
+        // GET: https://localhost/api/products?filterOn=Name&filterQuery=CPU&sortBy=Name&isAscending=true&pageNumber=1&paeSize=3
         [HttpGet]
         [Authorize(Roles = "Reader,Writer,Admin")]
-        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? queryFilter, 
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
             [FromQuery] string? sortBy, [FromQuery] bool isAscending = true, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
             // Check if any extra query parameters are passed
@@ -111,7 +111,7 @@ namespace GeekStore.API.Controllers
             }
 
             // Get relevant domain models
-            var products = await _productRepository.GetAllAsync(filterOn, queryFilter, sortBy, isAscending, pageNumber, pageSize);
+            var products = await _productRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
 
             // Map domain model to DTO
             var productDtos = _mapper.Map<List<ProductDto>>(products);
