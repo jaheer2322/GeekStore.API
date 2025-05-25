@@ -1,31 +1,42 @@
 ﻿# GeekStore API
+![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
+![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
+![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
+![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
+![Python](https://img.shields.io/badge/Python-3-yellow)
+
 GeekStore is a high-performance backend platform for PC part management and LLM-powered build recommendations — built with ASP.NET Core, PostgreSQL, and pgvector.
 
 <p align="center">
-  <img src="./Assets/Architecture/ProductCreationCodeFlow.gif" width="45%" alt="Demo of GeekStore Product Creation" />
-  <img src="./Assets/Architecture/RecommendationCodeFlow.gif" width="45%" alt="Demo of GeekStore Recommendation Flow" />
+  <img src="./Assets/Architecture/ProductCreationCodeFlow.gif" width="35%" alt="Demo of GeekStore Product Creation" />
+  <img src="./Assets/Architecture/RecommendationCodeFlow.gif" width="36%" alt="Demo of GeekStore Recommendation Flow" />
+  <div align="center"><p3>(Animated explanations below)</p3></div>
 </p>
-
-(Animated explanation below)
-
-![.NET](https://img.shields.io/badge/.NET-7.0-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
-![pgvector](https://img.shields.io/badge/pgvector-enabled-success)
-![LLM-Powered](https://img.shields.io/badge/LLM-Groq-green)
-
 
 ## Description
 
 GeekStore is an API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
 
-This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
+This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API** to implement **Retrieval Augmented Generation (RAG)**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
+
+## Technologies Used
+
+- **C# ASP.NET Core Web API**
+- **Entity Framework Core + PostgreSQL + SQL Server**
+- **pgvector** for vector similarity search
+- **Groq LLM API** for intelligent build generation
+- **AutoMapper** for clean DTO mappings
+- **Python (optional)** for embedding service via `pythonnet`
 
 ---
 
 ## Endpoints Overview
 ### Authentication Endpoints
 
-Handles user identity management.
+**Purpose**: Handles user identity management.
+**Database used**: SQLServer 16
 
 | HTTP Method | Endpoint             | Description                              | Role Required |
 |-------------|----------------------|------------------------------------------|----------------|
@@ -34,7 +45,8 @@ Handles user identity management.
 
 ### Consumer Endpoints
 
-Controllers manage CRUD operations on different resources. Role-based access control is enforced.
+**Purpose**: Controllers manage CRUD operations on different resources. Role-based access control is enforced.
+**Database used**: PostgreSQL 17
 
 **Roles**: Admin, Writer, Reader
 
@@ -50,12 +62,11 @@ Controllers manage CRUD operations on different resources. Role-based access con
 
 ## Recommendation Engine
 
-A cutting-edge feature that helps users build optimized PC configurations using **natural language queries**.
-
----
+A cutting-edge feature that helps users build optimized PC configurations using **Retrieval Augmented Generation (RAG)**.
 
 ### How It Works
 
+[Product Creation Codeflow]
 ![Product Creation Flow](./Assets/Architecture/ProductCreationCodeFlow.gif)
 
 1. **Product Creation & Embedding**
@@ -63,7 +74,9 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - An embedding request is queued at the same time to generate embedding for the product via `IEmbeddingService`.
    - The resulting vector is stored in PostgreSQL using the **pgvector** extension alongside product data.
 
+[Recommendation Codeflow]
 ![Recommendation Flow](./Assets/Architecture/RecommendationCodeFlow.gif)
+
 2. **User Query**
    - The user sends a plain-text requirement like:  
      *"I need a gaming PC under 1 Lakh rupees with a strong GPU."*
@@ -85,33 +98,19 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - The recommended product IDs are mapped to full product details.
    - Two complete build recommendations are sent back to the client as `RecommendationsDto`.
 
----
-
 ### Performance & Scalability
 
 - The engine is built to handle **millions of products** thanks to:
   - **PostgreSQL + pgvector**, optimized for fast vector similarity search even with high-dimensional data.
-  - Efficient indexing via **IVFFlat** or **HNSW**, ensuring sub-millisecond query times.
+  - Efficient indexing via **HNSW**, ensuring sub-millisecond query times.
   - Stateless services and modular design — ideal for horizontal scaling under heavy load.
 - **LLM processing and embedding are fully offloaded**, keeping the API lightweight and performant under concurrent usage.
-
 - **Real-time recommendations stay fast** — even as your product catalog grows exponentially.
 
----
-### Technologies Used
-
-- **C# ASP.NET Core Web API**
-- **Entity Framework Core + PostgreSQL**
-- **pgvector** for vector similarity search
-- **Groq LLM API** for intelligent build generation
-- **AutoMapper** for clean DTO mappings
-- **Python (optional)** for embedding service via `pythonnet`
-
----
 ### Example Query
 
-- I need a PC for video editing and occasional gaming under ₹80,000.
-- Returns two build recommendations optimized for **editing + budget gaming**, using the most relevant components available.
+- Request: I need a PC for video editing and occasional gaming under ₹80,000.
+- Response: Returns two build recommendations optimized for **editing + budget gaming**, using the most relevant components available.
 
 ---
 ## Endpoints Elaborated
@@ -182,34 +181,25 @@ GET /api/products?filterOn=category&filterQuery=GPU&sortBy=tier&isAscending=fals
 - git clone https://github.com/your-username/GeekStore.git
 - cd GeekStore
 ### 2. Setup Environment Variables
-- Create a .env file at the root of the project with the following keys:
-
-#### PostgreSQL for Product Catalog
-- GeekStoreConnectionString=Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
-
-#### SQL Server for Auth Database
-- GeekStoreAuthDbConnectionString=Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
-
-#### JWT Configuration
-- JWT_Key=your_super_secret_key
-- JWT_Issuer=https://localhost:5001/
-- JWT_Audience=https://localhost:5001/
-
-##### Python Embedding Service (if using pythonnet)
-- PythonDLLPath=C:/Path/To/pythonXY.dll
-- PythonScriptsFolder=C:/Path/To/GeekStore/Python
-
-##### Groq AI Configuration
-- GroqApiKey=your_groq_api_key
-- GroqLLMModel=llama-3.1-8b-instant
+#### Create a .env file at the root of the project with the following keys:
+- GeekStoreConnectionString = Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
+- GeekStoreAuthDbConnectionString = Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
+- JWT_Key = your_super_secret_key
+- JWT_Issuer = https://localhost:1234/
+- JWT_Audience = https://localhost:1234/
+- PythonDLLPath = C:/Path/To/pythonVersion.dll
+- PythonScriptsFolder = C:/Path/To/GeekStore/Python
+- GroqApiKey = your_groq_api_key
+- GroqLLMModel = Avaiable-Groq-LLM
 
 ## 3. Apply Migrations
 #### Navigate to the API project directory
-cd GeekStore.API
+- cd GeekStore.API
 
 #### Apply migrations to both databases
 - dotnet ef database update --context GeekStoreDbContext
 - dotnet ef database update --context GeekStoreAuthDbContext
+
 ## 4. Run the Project
 - dotnet run --project GeekStore.API
 
