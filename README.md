@@ -182,15 +182,28 @@ GET /api/products?filterOn=category&filterQuery=GPU&sortBy=tier&isAscending=fals
 - cd GeekStore
 ### 2. Setup Environment Variables
 #### Create a .env file at the root of the project with the following keys:
-- GeekStoreConnectionString = Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
-- GeekStoreAuthDbConnectionString = Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
-- JWT_Key = your_super_secret_key
-- JWT_Issuer = https://localhost:1234/
-- JWT_Audience = https://localhost:1234/
-- PythonDLLPath = C:/Path/To/pythonVersion.dll
-- PythonScriptsFolder = C:/Path/To/GeekStore/Python
-- GroqApiKey = your_groq_api_key
-- GroqLLMModel = Avaiable-Groq-LLM
+
+<details> <summary><strong>📄 .env Example</strong> (click to expand)</summary>
+
+#### #PostgreSQL for Product Catalog
+GeekStoreConnectionString=Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
+
+#### #SQL Server or PostgreSQL for Auth Database
+GeekStoreAuthDbConnectionString=Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
+
+#### #JWT Configuration
+JWT_Key=your_super_secret_key
+JWT_Issuer=https://localhost:7016/
+JWT_Audience=https://localhost:7016/
+
+#### #Python Embedding Service (if using pythonnet)
+PythonDLLPath=C:/Path/To/pythonXY.dll
+PythonScriptsFolder=C:/Path/To/GeekStore/Python
+
+#### #Groq AI Configuration
+GroqApiKey=your_groq_api_key
+GroqLLMModel=llama3-8b-instruct
+</details>
 
 ## 3. Apply Migrations
 #### Navigate to the API project directory
