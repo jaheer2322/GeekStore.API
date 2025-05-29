@@ -1,6 +1,8 @@
 ﻿using GeekStore.API.Data;
 using GeekStore.API.Models.Domains;
+using GeekStore.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 
 namespace GeekStore.API.Repositories
 {
@@ -26,6 +28,7 @@ namespace GeekStore.API.Repositories
 
             return createdProduct;
         }
+
         public async Task<List<Product>> GetAllAsync(string? column, string? query, 
             string? sortBy, bool isAscending, int pageNumber, int pageSize)
         {
@@ -56,6 +59,7 @@ namespace GeekStore.API.Repositories
                     {
                         "name" => products.OrderByDescending(product => product.Name),
                         "price" => products.OrderByDescending(product => product.Price),
+                        "category" => products.OrderByDescending(product => product.Category.Name),
                         _ => products
                     };
                 }
@@ -65,6 +69,7 @@ namespace GeekStore.API.Repositories
                     {
                         "name" => products.OrderBy(product => product.Name),
                         "price" => products.OrderBy(product => product.Price),
+                        "category" => products.OrderBy(product => product.Category.Name),
                         _ => products
                     };
                 }
@@ -109,6 +114,42 @@ namespace GeekStore.API.Repositories
             await _geekStoreDbContext.SaveChangesAsync();
             
             return product;
+        }
+
+        public async Task SaveEmbeddingAsync(Guid productId, Vector embedding)
+        {
+            var product = await _geekStoreDbContext.Products.FindAsync(productId);
+
+            if (product == null)
+                throw new KeyNotFoundException($"Product not found for id {productId}");
+
+            product.Embedding = embedding;
+            await _geekStoreDbContext.SaveChangesAsync();
+        }
+        public async Task<Dictionary<string, List<Product>>> GetSimilarProductsAsync(Vector inputVector)
+        {
+            var vectorLiteral = $"[{string.Join(",", inputVector.ToArray())}]";
+
+            var categories = await _geekStoreDbContext.Categories.ToListAsync();
+            var result = new Dictionary<string, List<Product>>();
+       
+            foreach(var category in categories)
+            {
+                var topProducts = await _geekStoreDbContext.Products
+                    .FromSqlRaw(@"
+                        SELECT * FROM ""Products""
+                        WHERE ""CategoryId"" = {0}
+                        ORDER BY (""Embedding"" <=> {1}) < 0.3 -- Distance threshold
+                        LIMIT 5", category.Id, inputVector)
+                    .ToListAsync();
+
+                // Low confidence rejection
+                if (topProducts.Any())
+                {
+                    result[category.Name] = topProducts;
+                }
+            }
+            return result;
         }
     }
 }

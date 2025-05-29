@@ -16,6 +16,8 @@ namespace GeekStore.API.Mappings
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, AddCategoryRequestDto>().ReverseMap();
             CreateMap<Category, UpdateCategoryRequestDto>().ReverseMap();
+            CreateMap<Product, RecommendedProductDto>().ReverseMap();
+            CreateMap<Product, CompactProductDto>().ReverseMap();
         }
     }
 }

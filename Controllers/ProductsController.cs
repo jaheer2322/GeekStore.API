@@ -2,7 +2,8 @@
 using GeekStore.API.CustomActionFilters;
 using GeekStore.API.Models.Domains;
 using GeekStore.API.Models.DTOs;
-using GeekStore.API.Repositories;
+using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,28 +14,40 @@ namespace GeekStore.API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
+        private readonly IRecommendationService _recommendationService;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        // List of allowed query parameters for getAll request
-        private readonly List<string> allowedParameters = new List<string> { "filterOn", "queryFilter", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
-        public ProductsController(IProductRepository productRepository, IMapper mapper) {
+        private readonly List<string> queryableAndSortableColumns = new List<string> {
+                "name",
+                "tier",
+                "category"
+            };
+
+        // List of allowed query parameters for getAll request
+        private readonly List<string> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
+
+        public ProductsController(IProductService productService, IProductRepository productRepository, IRecommendationService recommendationService, IMapper mapper) {
+            _productService = productService;
             _productRepository = productRepository;
+            _recommendationService = recommendationService;
             _mapper = mapper;
         }
 
         // POST: https://localhost/api/products
         [HttpPost]
         [ValidateModelAttribute]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Writer,Admin")]
         public async Task<IActionResult> Create([FromBody] AddProductRequestDto createProductDto)
         {
             // Create new product with the given params
             var product = _mapper.Map<Product>(createProductDto);
 
-            // Add and save to db
-            product = await _productRepository.CreateAsync(product);
+            // Call the service to save the product
+            product = await _productService.CreateAsync(product);
+
             if(product == null)
             {
                 return BadRequest("Product creation failed");
@@ -44,11 +57,39 @@ namespace GeekStore.API.Controllers
             var createdProductDto = _mapper.Map<ProductDto>(product);
             return CreatedAtAction(nameof(GetById), new { id = createdProductDto.Id }, createdProductDto);
         }
-        
-        // GET: https://localhost/api/products?filterOn=Name&queryFilter=CPU&sortBy=Name&isAscending=true&pageNumber=1&paeSize=3
+
+        // POST: https://localhost/api/products/bulk
+        [HttpPost("bulk")]
+        [ValidateModelAttribute]
+        [Authorize(Roles = "Writer,Admin")]
+        public async Task<IActionResult> CreateMultiple([FromBody] List<AddProductRequestDto> createProductDtos)
+        {
+            if (createProductDtos == null || !createProductDtos.Any())
+            {
+                return BadRequest("Product list cannot be empty.");
+            }
+
+            // Map DTOs to domain models
+            var products = _mapper.Map<List<Product>>(createProductDtos);
+
+            // Save to DB using repository
+            var createdProducts = await _productService.CreateMultipleAsync(products);
+
+            if (createdProducts == null || !createdProducts.Any())
+            {
+                return BadRequest("Product creation failed");
+            }
+
+            // Map domain models to response DTOs
+            var createdProductDtos = _mapper.Map<List<ProductDto>>(createdProducts);
+
+            return Ok(createdProductDtos); // You could use CreatedAtAction per product if needed
+        }
+
+        // GET: https://localhost/api/products?filterOn=Name&filterQuery=CPU&sortBy=Name&isAscending=true&pageNumber=1&paeSize=3
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
-        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? queryFilter, 
+        [Authorize(Roles = "Reader,Writer,Admin")]
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
             [FromQuery] string? sortBy, [FromQuery] bool isAscending = true, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
             // Check if any extra query parameters are passed
@@ -58,12 +99,6 @@ namespace GeekStore.API.Controllers
             {
                 return BadRequest($"Invalid query parameters: {string.Join(", ", extraParameters)}. Allowed parameters are: {string.Join(", ", allowedParameters)}");
             }
-
-            List<string> queryableAndSortableColumns = new List<string> {
-                "name",
-                "tier",
-                "category"
-            };
 
             if (string.IsNullOrWhiteSpace(filterOn) == false && !queryableAndSortableColumns.Contains(filterOn.ToLower()))
             {
@@ -76,7 +111,7 @@ namespace GeekStore.API.Controllers
             }
 
             // Get relevant domain models
-            var products = await _productRepository.GetAllAsync(filterOn, queryFilter, sortBy, isAscending, pageNumber, pageSize);
+            var products = await _productRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
 
             // Map domain model to DTO
             var productDtos = _mapper.Map<List<ProductDto>>(products);
@@ -88,7 +123,7 @@ namespace GeekStore.API.Controllers
         // GET: https://localhost/api/products/{id}
         [HttpGet]
         [Route("{id}")]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
             // Getting relevant domain models
@@ -101,12 +136,27 @@ namespace GeekStore.API.Controllers
             var productDto = _mapper.Map<ProductDto>(domainProduct);
             return Ok(productDto);
         }
-        
+
+        // POST: https://localhost/api/products/recommend
+        [HttpPost("recommend")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
+        public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
+        {
+            var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO.Query);
+            
+            if(recommendations == null)
+            {
+                return NotFound("No recommendations found for the given query.");
+            }
+
+            return Ok(recommendations);
+        }
+
         // PUT: https://localhost/api/products/{id}
         [HttpPut]
         [Route("{id}")]
         [ValidateModelAttribute]
-        [Authorize(Roles = "Reader,Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateProductRequestDto updateProductRequestDto)
         {
             var updatedProduct = _mapper.Map<Product>(updateProductRequestDto);
@@ -123,7 +173,7 @@ namespace GeekStore.API.Controllers
         // DELETE: https://localhost/api/products/{id}
         [HttpDelete]
         [Route("{id}")]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Writer,Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var deletedProduct = await _productRepository.DeleteAsync(id);

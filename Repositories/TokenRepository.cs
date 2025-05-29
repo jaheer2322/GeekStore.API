@@ -3,17 +3,13 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using DotNetEnv;
+using GeekStore.API.Repositories.Interfaces;
 
 namespace GeekStore.API.Repositories
 {
     public class TokenRepository : ITokenRepository
     {
-        private readonly IConfiguration _configuration;
-
-        public TokenRepository(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
         public string CreateJwtToken(IdentityUser user, List<string> roles)
         {
             var claims = new List<Claim>();
@@ -24,14 +20,14 @@ namespace GeekStore.API.Repositories
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Jwt_Key")));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
+                Environment.GetEnvironmentVariable("Jwt_Issuer"),
+                Environment.GetEnvironmentVariable("Jwt_Audience"),
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

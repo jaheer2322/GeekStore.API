@@ -1,137 +1,221 @@
-# GeekStore API
+﻿# GeekStore API
+![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
+![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
+![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
+![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
+![Python](https://img.shields.io/badge/Python-3-yellow)
+
+GeekStore is a high-performance backend platform for PC part management and LLM-powered build recommendations — built with ASP.NET Core, PostgreSQL, and pgvector.
+
+<p align="center">
+  <img src="./Assets/Architecture/ProductCreationCodeFlow.gif" width="35%" alt="Demo of GeekStore Product Creation" />
+  <img src="./Assets/Architecture/RecommendationCodeFlow.gif" width="36%" alt="Demo of GeekStore Recommendation Flow" />
+  <div align="center"><p3>(Animated explanations below)</p3></div>
+</p>
 
 ## Description
-GeekStore is an API-based platform focused on managing products, tiers and categories of computer hardware. The API allows users to interact with product data, categorize them and manage their tier classifications. It includes authentication and authorization features, enabling users with different roles to perform various operations like creating, reading, updating, and deleting (CRUD) data.
 
-## Project Structure
+GeekStore is an API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
 
-This project is built using **ASP.NET Core Web API** with **Entity Framework Core** for database interaction. The following sections explain the core components of the project:
+This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API** to implement **Retrieval Augmented Generation (RAG)**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
 
----
+## Technologies Used
 
-### **Controllers**
-
-The controllers handle incoming HTTP requests and interact with repositories to fetch or modify data.
-
-#### 1. `ProductsController.cs`
-- **Purpose**: Manages the CRUD operations for products in the system.
-- **Key Endpoints**:
-  - **POST `/api/products`**: Creates a new product (only accessible by users with the "Writer" role).
-  - **GET `/api/products`**: Retrieves a list of products with filtering, sorting, and pagination options (accessible by "Reader" and "Writer" roles).
-  - **GET `/api/products/{id}`**: Retrieves a product by its ID.
-  - **PUT `/api/products/{id}`**: Updates an existing product.
-  - **DELETE `/api/products/{id}`**: Deletes a product.
-
-#### 2. `TiersController.cs`
-- **Purpose**: Manages CRUD operations for tiers, which categorize products into "Low end", "Mid end", or "High end".
-- **Key Endpoints**:
-  - **POST `/api/tiers`**: Creates a new tier (only accessible by users with the "Writer" role).
-  - **GET `/api/tiers`**: Retrieves all available tiers.
-  - **GET `/api/tiers/{id}`**: Retrieves a specific tier by its ID.
-  - **PUT `/api/tiers/{id}`**: Updates a tier.
-  - **DELETE `/api/tiers/{id}`**: Deletes a tier.
-
-#### 3. `CategoriesController.cs`
-- **Purpose**: Manages CRUD operations for categories, such as "CPU", "GPU", etc., which classify products.
-- **Key Endpoints**:
-  - **POST `/api/categories`**: Creates a new category.
-  - **GET `/api/categories`**: Retrieves all categories.
-  - **GET `/api/categories/{id}`**: Retrieves a specific category by its ID.
-  - **PUT `/api/categories/{id}`**: Updates a category.
-  - **DELETE `/api/categories/{id}`**: Deletes a category.
-
-#### 4. `AuthController.cs`
-- **Purpose**: Handles authentication and authorization for the system.
-- **Key Endpoints**:
-  - **POST `/api/auth/register`**: Registers a new user with assigned roles.
-  - **POST `/api/auth/login`**: Logs in an existing user and generates a JWT token for authentication.
+- **C# ASP.NET Core Web API**
+- **Entity Framework Core + PostgreSQL + SQL Server**
+- **pgvector** for vector similarity search
+- **Groq LLM API** for intelligent build generation
+- **AutoMapper** for clean DTO mappings
+- **Python (optional)** for embedding service via `pythonnet`
 
 ---
 
-### **Data Models (Domains)**
+## Endpoints Overview
+### Authentication Endpoints
 
-The **Domain Models** represent the entities in the application.
+**Purpose**: Handles user identity management.
+**Database used**: SQLServer 16
 
-#### 1. `Product.cs`
-- Represents a product with properties such as `Name`, `Description`, `Price`, `TierId`, and `CategoryId`.
-- Includes navigation properties to link products to their respective `Tier` and `Category`.
+| HTTP Method | Endpoint             | Description                              | Role Required |
+|-------------|----------------------|------------------------------------------|----------------|
+| POST        | /api/auth/register   | Register a new user with roles           | None           |
+| POST        | /api/auth/login      | Authenticate user and return JWT token   | None           |
 
-#### 2. `Tier.cs`
-- Represents a product's tier classification (e.g., "Low end", "Mid end", "High end").
+### Consumer Endpoints
 
-#### 3. `Category.cs`
-- Represents product categories like "CPU", "GPU", etc.
+**Purpose**: Controllers manage CRUD operations on different resources. Role-based access control is enforced.
+**Database used**: PostgreSQL 17
 
----
+**Roles**: Admin, Writer, Reader
 
-### **DTOs (Data Transfer Objects)**
-
-DTOs define the structure of data that will be sent or received through API requests.
-
-#### 1. `AddCategoryRequestDto.cs`
-- Defines the data required to create a new category, including the category `Name`.
-
-#### 2. `AddProductRequestDto.cs`
-- Defines the data required to create a new product, including `Name`, `Description`, `Price`, `TierId`, and `CategoryId`.
-
-#### 3. `AddTierRequestDto.cs`
-- Defines the data required to create a new tier, including the tier `Name`.
-
-#### 4. `CategoryDto.cs`
-- A read-only DTO representing the `Category` model with `Id` and `Name`.
-
-#### 5. `ProductDto.cs`
-- A DTO for representing product data with properties like `Id`, `Name`, `Description`, `Price`, and associated `Tier` and `Category` objects.
-
-#### 6. `TierDto.cs`
-- A read-only DTO representing the `Tier` model with `Id` and `Name`.
-
-#### 7. `LoginRequestDto.cs`
-- Contains properties for user login: `Username` (email) and `Password`.
-
-#### 8. `LoginResponseDto.cs`
-- Represents the response to a successful login, containing the `JwtToken` for authentication.
-
-#### 9. `RegisterRequestDto.cs`
-- Contains the information required to register a new user, including `UserName`, `Password`, and `Roles`.
-
-#### 10. `UpdateCategoryRequestDto.cs`
-- Defines the data required to update a category, including the `Name`.
-
-#### 11. `UpdateProductRequestDto.cs`
-- Defines the data required to update a product, including `Name`, `Description`, `Price`, `TierId`, and `CategoryId`.
-
-#### 12. `UpdateTierRequestDto.cs`
-- Defines the data required to update a tier, including the `Name`.
+| HTTP Method | Endpoint             | Minimum Role |
+|-------------|----------------------|---------------|
+| POST        | /api/resource         | Writer        |
+| GET         | /api/resource/{id}    | Reader        |
+| GET         | /api/resource         | Reader        | (Query is also possible with filters, more details below)
+| PUT         | /api/resource/{id}    | Writer        |
+| DELETE      | /api/resource/{id}    | Writer        |
 
 ---
 
-### **Database Contexts**
+## Recommendation Engine
 
-#### 1. `GeekStoreAuthDbContext.cs`
-- **Purpose**: Manages user authentication and roles using ASP.NET Identity.
-- Includes default `Reader` and `Writer` roles with predefined GUIDs for data seeding.
+A cutting-edge feature that helps users build optimized PC configurations using **Retrieval Augmented Generation (RAG)**.
 
-#### 2. `GeekStoreDbContext.cs`
-- **Purpose**: Manages product, category, and tier data.
-- Includes predefined tiers ("Low end", "Mid end", "High end") and categories (e.g., "CPU", "GPU") for data seeding.
+### How It Works
+
+[Product Creation Codeflow]
+![Product Creation Flow](./Assets/Architecture/ProductCreationCodeFlow.gif)
+
+1. **Product Creation & Embedding**
+   - When a new product is added, it is saved to the PostgreSQL and returns a response immediately.
+   - An embedding request is queued at the same time to generate embedding for the product via `IEmbeddingService`.
+   - The resulting vector is stored in PostgreSQL using the **pgvector** extension alongside product data.
+
+[Recommendation Codeflow]
+![Recommendation Flow](./Assets/Architecture/RecommendationCodeFlow.gif)
+
+2. **User Query**
+   - The user sends a plain-text requirement like:  
+     *"I need a gaming PC under 1 Lakh rupees with a strong GPU."*
+
+3. **Query Embedding**
+   - The input query is passed to a Python-based microservice (`IEmbeddingService`) that generates a semantic vector.
+
+4. **Similarity Search**
+   - A **cosine similarity search** is performed on the stored product vectors (via `pgvector`) using Entity Framework + PostgreSQL.
+
+5. **Top Matches Per Category**
+   - The backend retrieves the **top 5 most relevant products per category** (CPU, GPU, RAM, etc.). Also implements low confidence rejection for accurate results.
+
+6. **LLM-Powered Optimization**
+   - The shortlisted products and the original query are sent to a **Groq-hosted LLM**.
+   - The LLM returns **two optimized PC builds** in the form of category-product ID mappings.
+   - The engine implements graceful fallback messaging, ensuring clear and user-friendly responses even when no valid recommendations are found.
+
+7. **DTO Mapping & Final Output**
+   - The recommended product IDs are mapped to full product details.
+   - Two complete build recommendations are sent back to the client as `RecommendationsDto`.
+
+### Performance & Scalability
+
+- The engine is built to handle **millions of products** thanks to:
+  - **PostgreSQL + pgvector**, optimized for fast vector similarity search even with high-dimensional data.
+  - Efficient indexing via **HNSW**, ensuring sub-millisecond query times.
+  - Stateless services and modular design — ideal for horizontal scaling under heavy load.
+- **LLM processing and embedding are fully offloaded**, keeping the API lightweight and performant under concurrent usage.
+- **Real-time recommendations stay fast** — even as your product catalog grows exponentially.
+
+### Example Query
+
+- Request: I need a PC for video editing and occasional gaming under ₹80,000.
+- Response: Returns two build recommendations optimized for **editing + budget gaming**, using the most relevant components available.
+
+---
+## Endpoints Elaborated
+
+| Controller         | Endpoint               | Method | Role Required | Description                                 |
+| ------------------ | ---------------------- | ------ | ------------- | ------------------------------------------- |
+| **Auth**           | `/api/auth/register`   | POST   | None          | Register a new user                         |
+|                    | `/api/auth/login`      | POST   | None          | Authenticate and receive JWT token          |
+| **Products**       | `/api/products`        | GET    | Reader        | Get all products (with filters/sorting)     |
+|                    | `/api/products/{id}`   | GET    | Reader        | Get product by ID                           |
+|                    | `/api/products`        | POST   | Writer        | Create a new product                        |
+|                    | `/api/products/{id}`   | PUT    | Writer        | Update product by ID                        |
+|                    | `/api/products/{id}`   | DELETE | Writer        | Delete product by ID                        |
+| **Tiers**          | `/api/tiers`           | GET    | Reader        | Get all tiers                               |
+|                    | `/api/tiers/{id}`      | GET    | Reader        | Get tier by ID                              |
+|                    | `/api/tiers`           | POST   | Writer        | Create a new tier                           |
+|                    | `/api/tiers/{id}`      | PUT    | Writer        | Update tier by ID                           |
+|                    | `/api/tiers/{id}`      | DELETE | Writer        | Delete tier by ID                           |
+| **Categories**     | `/api/categories`      | GET    | Reader        | Get all categories                          |
+|                    | `/api/categories/{id}` | GET    | Reader        | Get category by ID                          |
+|                    | `/api/categories`      | POST   | Writer        | Create a new category                       |
+|                    | `/api/categories/{id}` | PUT    | Writer        | Update category by ID                       |
+|                    | `/api/categories/{id}` | DELETE | Writer        | Delete category by ID                       |
+| **Recommendation** | `/api/recommendations` | POST   | Reader        | Generate PC build recommendations (via LLM) |
+
+#### Endpoints screeshot in swagger
+![Swagger endpoints full](./Assets/Screenshots/SwaggerEndpointsFull.jpg))
+
+#### Product Listing Features
+
+- **Filtering** on fields: `name`, `tier`, `category`
+- **Sorting** on fields: `name`, `tier`, `category`
+- **Pagination** with customizable page size
+- **Strict parameter validation**
+- **Role-based access** (`Reader`, `Writer`, `Admin`)
+
+#### Example Request
+
+GET /api/products?filterOn=category&filterQuery=GPU&sortBy=tier&isAscending=false&pageNumber=1&pageSize=10
+
+#### Query Parameters
+
+| Parameter     | Type   | Description                                                                 |
+|---------------|--------|-----------------------------------------------------------------------------|
+| `filterOn`    | string | Field to filter on (`name`, `tier`, `category`)                             |
+| `filterQuery` | string | Value to search for in the specified `filterOn` field (Any for name, complete name for category and tier)                    |
+| `sortBy`      | string | Field to sort by (`name`, `tier`, `category`)                               |
+| `isAscending` | bool   | `true` for ascending, `false` for descending                                |
+| `pageNumber`  | int    | Page number (starts from 1)                                                 |
+| `pageSize`    | int    | Number of results per page (default: 1000, ideal for large datasets)        |
+
+#### Swagger Screenshot of product query features
+![Product Query Features](./Assets/Screenshots/ProductQueryFeatures.jpg)
+
+### Performance & Scalability
+
+- Supports **millions of products**
+- Utilizes **PostgreSQL + indexes** for blazing fast queries
+- Designed to scale under **high concurrent loads**
 
 ---
 
-### **Repositories**
+## QuickStart
 
-Repositories provide the abstraction layer for data access operations.
+### Follow these steps to get GeekStore API up and running locally:
 
-#### 1. `IProductRepository.cs`
-- Interface for CRUD operations on `Product` entities.
+### 1. Clone the Repository
+- git clone https://github.com/your-username/GeekStore.git
+- cd GeekStore
+### 2. Setup Environment Variables
+#### Create a .env file at the root of the project with the following keys:
 
-#### 2. `ITierRepository.cs`
-- Interface for CRUD operations on `Tier` entities.
+<details> <summary><strong>📄 .env Example</strong> (click to expand)</summary>
 
-#### 3. `ICategoryRepository.cs`
-- Interface for CRUD operations on `Category` entities.
+#### #PostgreSQL for Product Catalog
+GeekStoreConnectionString=Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
 
----
+#### #SQL Server or PostgreSQL for Auth Database
+GeekStoreAuthDbConnectionString=Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
 
-## Setup Instructions to clone the Repository**:
-   `git clone https://github.com/yourusername/GeekStore-API.git`
+#### #JWT Configuration
+JWT_Key=your_super_secret_key
+JWT_Issuer=https://localhost:7016/
+JWT_Audience=https://localhost:7016/
+
+#### #Python Embedding Service (if using pythonnet)
+PythonDLLPath=C:/Path/To/pythonXY.dll
+PythonScriptsFolder=C:/Path/To/GeekStore/Python
+
+#### #Groq AI Configuration
+GroqApiKey=your_groq_api_key
+GroqLLMModel=llama3-8b-instruct
+</details>
+
+## 3. Apply Migrations
+#### Navigate to the API project directory
+- cd GeekStore.API
+
+#### Apply migrations to both databases
+- dotnet ef database update --context GeekStoreDbContext
+- dotnet ef database update --context GeekStoreAuthDbContext
+
+## 4. Run the Project
+- dotnet run --project GeekStore.API
+
+## 5. Test with Swagger
+- Visit: https://localhost:1234/swagger

@@ -9,8 +9,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using GeekStore.API.Middlewares;
 using Serilog;
+using DotNetEnv;
+using GeekStore.API.Services;
+using GroqApiLibrary;
+using Python.Runtime;
+using GeekStore.API.Services.Interfaces;
+using GeekStore.API.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables from .env file
+Env.Load();
 
 // Adding services to the DI container.
 
@@ -55,14 +64,27 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Register the background queue interface
+builder.Services.AddSingleton<EmbeddingQueue>();
+builder.Services.AddSingleton<IEmbeddingQueue>(sp => sp.GetRequiredService<EmbeddingQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<EmbeddingQueue>());
+
 // Scoped and short-lived, new instance of dbContext is created for each http request
-builder.Services.AddDbContext<GeekStoreDbContext>(options => 
-options.UseSqlServer(builder.Configuration.GetConnectionString("GeekStoreConnectionString")));
+builder.Services.AddDbContext<GeekStoreDbContext>(options => options.UseNpgsql(
+    Environment.GetEnvironmentVariable("GeekStoreConnectionString"),
+    o => o.UseVector())
+);
 
 builder.Services.AddDbContext<GeekStoreAuthDbContext>(options => 
-options.UseSqlServer(builder.Configuration.GetConnectionString("GeekStoreAuthDbConnectionString")));
+options.UseSqlServer(Environment.GetEnvironmentVariable("GeekStoreAuthDbConnectionString")));
 
-// Adding instances to dependency injection container
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IEmbeddingService, PythonEmbeddingService>();
+builder.Services.AddScoped<ILLMService, GroqLLMService>();
+builder.Services.AddScoped<GroqApiClient>(sp =>
+    new GroqApiClient(Environment.GetEnvironmentVariable("GroqApiKey")));
+
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
@@ -94,12 +116,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = Environment.GetEnvironmentVariable("JWT_Issuer"),
             ValidateAudience = true,
+            ValidAudience = Environment.GetEnvironmentVariable("JWT_Audience"),
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                builder.Configuration["Jwt:Key"])),
+                Environment.GetEnvironmentVariable("JWT_Key"))),
             ValidateLifetime = true
         };
     });
@@ -121,5 +143,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Runtime.PythonDLL = Environment.GetEnvironmentVariable("PythonDLLPath");
+
+_ = PythonEngineSingleton.Instance;
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    PythonEngineSingleton.Instance.Shutdown();
+});
 
 app.Run();
