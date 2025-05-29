@@ -88,11 +88,12 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - A **cosine similarity search** is performed on the stored product vectors (via `pgvector`) using Entity Framework + PostgreSQL.
 
 5. **Top Matches Per Category**
-   - The backend retrieves the **top 3 most relevant products per category** (CPU, GPU, RAM, etc.).
+   - The backend retrieves the **top 5 most relevant products per category** (CPU, GPU, RAM, etc.). Also implements low confidence rejection for accurate results.
 
 6. **LLM-Powered Optimization**
    - The shortlisted products and the original query are sent to a **Groq-hosted LLM**.
    - The LLM returns **two optimized PC builds** in the form of category-product ID mappings.
+   - The engine implements graceful fallback messaging, ensuring clear and user-friendly responses even when no valid recommendations are found.
 
 7. **DTO Mapping & Final Output**
    - The recommended product IDs are mapped to full product details.
@@ -182,15 +183,28 @@ GET /api/products?filterOn=category&filterQuery=GPU&sortBy=tier&isAscending=fals
 - cd GeekStore
 ### 2. Setup Environment Variables
 #### Create a .env file at the root of the project with the following keys:
-- GeekStoreConnectionString = Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
-- GeekStoreAuthDbConnectionString = Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
-- JWT_Key = your_super_secret_key
-- JWT_Issuer = https://localhost:1234/
-- JWT_Audience = https://localhost:1234/
-- PythonDLLPath = C:/Path/To/pythonVersion.dll
-- PythonScriptsFolder = C:/Path/To/GeekStore/Python
-- GroqApiKey = your_groq_api_key
-- GroqLLMModel = Avaiable-Groq-LLM
+
+<details> <summary><strong>📄 .env Example</strong> (click to expand)</summary>
+
+#### #PostgreSQL for Product Catalog
+GeekStoreConnectionString=Host=localhost;Port=5432;Database=GeekStoreDb;Username=your_username;Password=your_password
+
+#### #SQL Server or PostgreSQL for Auth Database
+GeekStoreAuthDbConnectionString=Server=localhost;Database=GeekStoreAuthDb;Trusted_Connection=True;TrustServerCertificate=True
+
+#### #JWT Configuration
+JWT_Key=your_super_secret_key
+JWT_Issuer=https://localhost:7016/
+JWT_Audience=https://localhost:7016/
+
+#### #Python Embedding Service (if using pythonnet)
+PythonDLLPath=C:/Path/To/pythonXY.dll
+PythonScriptsFolder=C:/Path/To/GeekStore/Python
+
+#### #Groq AI Configuration
+GroqApiKey=your_groq_api_key
+GroqLLMModel=llama3-8b-instruct
+</details>
 
 ## 3. Apply Migrations
 #### Navigate to the API project directory
