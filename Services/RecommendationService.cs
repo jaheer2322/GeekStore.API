@@ -47,11 +47,11 @@ namespace GeekStore.API.Services
 
                Each build must:
                - Be a flat JSON object.
-               - Strictly contain the categories present in the input JSON only as keys.
+               - STRICTLY contain the categories present in the input JSON only as keys.
                - Do not create any new categories or modify existing ones even if the user infers a category that is not present in input JSON.
-               - Have values as only product IDs (GUIDs) exactly as given in the input.
+               - SRICTLY have values as only product IDs (GUIDs) exactly as given in the input. Return only the exact guids as given.
                - Not include objects, additional keys, or any formatting — just the product ID string as the value.
-               - Make sure the products within a build are compatible and no bottlenecks are present.
+               - Make sure the products within a build are compatible (with the right cpu socket in motherboard) and no bottlenecks are present.
                
                Example build format (do not include explanations):
                [
@@ -67,6 +67,7 @@ namespace GeekStore.API.Services
                  }
                ]
 
+               If the user query does not provide enough information to create a valid build or the query is out of pc building topic, simply return an empty array.
                Return only the array. No explanations, no markdown, no text before or after.
             """;
 
@@ -103,9 +104,14 @@ namespace GeekStore.API.Services
                 recommendedBuilds.Add(new BuildDto { Parts = parts });
             }
 
+            var message = recommendedBuilds.Count == 0
+                ? "Sorry, we currently cannot recommend a PC build for your query. Please make sure that the query is related to PC recommendation."
+                : "Here are the recommended PC builds based on your query among our best available components. Please note that currently there are no suitable products for the categories that are not mentioned in the recommendations";
+
             // Wrap in DTO and return
             return new RecommendationsDto
             {
+                Message = message,
                 Builds = recommendedBuilds
             };
         }

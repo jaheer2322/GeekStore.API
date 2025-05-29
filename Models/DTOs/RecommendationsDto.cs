@@ -2,6 +2,7 @@
 {
     public class RecommendationsDto
     {
+        public string Message { get; set; }
         public List<BuildDto> Builds { get; set; }
     }
 }

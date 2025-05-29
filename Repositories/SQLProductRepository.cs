@@ -139,11 +139,15 @@ namespace GeekStore.API.Repositories
                     .FromSqlRaw(@"
                         SELECT * FROM ""Products""
                         WHERE ""CategoryId"" = {0}
-                        ORDER BY ""Embedding"" <=> {1}
-                        LIMIT 3", category.Id, inputVector)
+                        ORDER BY (""Embedding"" <=> {1}) < 0.3 -- Distance threshold
+                        LIMIT 5", category.Id, inputVector)
                     .ToListAsync();
 
-                result[category.Name] = topProducts;
+                // Low confidence rejection
+                if (topProducts.Any())
+                {
+                    result[category.Name] = topProducts;
+                }
             }
             return result;
         }
