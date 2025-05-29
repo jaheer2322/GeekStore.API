@@ -88,11 +88,12 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - A **cosine similarity search** is performed on the stored product vectors (via `pgvector`) using Entity Framework + PostgreSQL.
 
 5. **Top Matches Per Category**
-   - The backend retrieves the **top 3 most relevant products per category** (CPU, GPU, RAM, etc.).
+   - The backend retrieves the **top 5 most relevant products per category** (CPU, GPU, RAM, etc.).
 
 6. **LLM-Powered Optimization**
    - The shortlisted products and the original query are sent to a **Groq-hosted LLM**.
    - The LLM returns **two optimized PC builds** in the form of category-product ID mappings.
+   - The engine implements graceful fallback messaging, ensuring clear and user-friendly responses even when no valid recommendations are found.
 
 7. **DTO Mapping & Final Output**
    - The recommended product IDs are mapped to full product details.
