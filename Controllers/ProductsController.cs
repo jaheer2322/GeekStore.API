@@ -20,9 +20,15 @@ namespace GeekStore.API.Controllers
         private readonly IMapper _mapper;
 
 
-        private readonly List<string> queryableAndSortableColumns = new List<string> {
+        private readonly List<string> queryableColumns = new List<string> {
                 "name",
                 "tier",
+                "category"
+            };
+        private readonly List<string> sortableColumns = new List<string> {
+                "name",
+                "tier",
+                "price",
                 "category"
             };
 
@@ -100,14 +106,14 @@ namespace GeekStore.API.Controllers
                 return BadRequest($"Invalid query parameters: {string.Join(", ", extraParameters)}. Allowed parameters are: {string.Join(", ", allowedParameters)}");
             }
 
-            if (string.IsNullOrWhiteSpace(filterOn) == false && !queryableAndSortableColumns.Contains(filterOn.ToLower()))
+            if (string.IsNullOrWhiteSpace(filterOn) == false && !queryableColumns.Contains(filterOn.ToLower()))
             {
-                return BadRequest($"Invalid column to filter {filterOn}. Allowed values are: {string.Join(", ", queryableAndSortableColumns)}");
+                return BadRequest($"Invalid column to filter {filterOn}. Allowed values are: {string.Join(", ", queryableColumns)}");
             }
 
-            if (string.IsNullOrWhiteSpace(sortBy) == false && !queryableAndSortableColumns.Contains(sortBy.ToLower()))
+            if (string.IsNullOrWhiteSpace(sortBy) == false && !sortableColumns.Contains(sortBy.ToLower()))
             {
-                return BadRequest($"Invalid column to sortBy {filterOn}. Allowed values are: {string.Join(", ", queryableAndSortableColumns)}");
+                return BadRequest($"Invalid column to sortBy {filterOn}. Allowed values are: {string.Join(", ", sortableColumns)}");
             }
 
             // Get relevant domain models

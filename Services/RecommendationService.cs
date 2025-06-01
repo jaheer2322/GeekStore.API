@@ -43,32 +43,36 @@ namespace GeekStore.API.Services
 
             // Get LLM recommendation result (JSON string)
             var systemPrompt = """
-               You are an expert PC builder. Given a user query and a JSON object of available PC components grouped by category (each category has exactly 3 products), your job is to return an array of exactly two valid PC builds.
+            You are an expert PC builder.
 
-               Each build must:
-               - Be a flat JSON object.
-               - STRICTLY contain the categories present in the input JSON only as keys.
-               - Do not create any new categories or modify existing ones even if the user infers a category that is not present in input JSON.
-               - SRICTLY have values as only product IDs (GUIDs) exactly as given in the input. Return only the exact guids as given.
-               - Not include objects, additional keys, or any formatting — just the product ID string as the value.
-               - Make sure the products within a build are compatible (with the right cpu socket in motherboard) and no bottlenecks are present.
-               
-               Example build format (do not include explanations):
-               [
-                 {
-                   "Category1": "GUID",
-                   "Category2": "GUID",
-                   "Category3": "GUID"
-                 },
-                 {
-                   "Category1": "GUID",
-                   "Category2": "GUID",
-                   "Category3": "GUID"
-                 }
-               ]
+            You will receive two things:
+            1. A user query describing their PC needs.
+            2. A JSON object of available PC components grouped by category. Each category has exactly 5 products, each with a unique GUID.
 
-               If the user query does not provide enough information to create a valid build or the query is out of pc building topic, simply return an empty array.
-               Return only the array. No explanations, no markdown, no text before or after.
+            Your task:
+            - Return an array of EXACTLY TWO valid PC builds.
+            - Each build must be a flat JSON object: each key is a category (as given in input), and each value is a GUID (copied exactly from input).
+            - DO NOT invent or add new categories not present in the input — return only the categories exactly as-is.
+            - DO NOT change, merge, or generate GUIDs. Copy the GUIDs from input exactly.
+            - Values must ONLY be GUID strings — no objects, names, or explanations.
+            - Output must be a plain JSON array with two builds. No text before or after.
+            - If a valid build cannot be created based on input or query, return an empty array: `[]`.
+
+            Example format:
+            [
+              {
+                "Category1": "GUID",
+                "Category2": "GUID",
+                "Category3": "GUID"
+              },
+              {
+                "Category1": "GUID",
+                "Category2": "GUID",
+                "Category3": "GUID"
+              }
+            ]
+            Make sure that the builds have compatible cpu and motherboard sockets and low to zero bottleneck among its components.
+            Do NOT include any explanations or additional formatting. Return only the JSON array.
             """;
 
             var llmResultJson = await _llmService.GenerateRecommendationAsync(systemPrompt, query, availableProductsJson);

@@ -15,12 +15,12 @@ public sealed class PythonEngineSingleton
         PythonEngine.Initialize();
         PythonEngine.BeginAllowThreads();
 
-        RunWithGIL(() =>
+        _ = RunWithGIL(() =>
         {
             dynamic sys = Py.Import("sys");
             sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
             dynamic embeddingModule = Py.Import("embedding_service");
-            embeddingModule.get_embedding("warmup"); // dummy call
+            return embeddingModule.get_embedding("warmup"); // dummy call
         });
 
         stopwatch.Stop();
@@ -32,14 +32,6 @@ public sealed class PythonEngineSingleton
         using (Py.GIL())
         {
             return func();
-        }
-    }
-
-    public void RunWithGIL(Action action)
-    {
-        using (Py.GIL())
-        {
-            action();
         }
     }
 

@@ -37,14 +37,12 @@ namespace GeekStore.API.Repositories
             // Filtering
             if (string.IsNullOrWhiteSpace(column) == false && string.IsNullOrWhiteSpace(query) == false)
             {
+                query = query.ToLower();
                 products = column.ToLower() switch
                 {
                     "name" => products.Where(product => product.Name.ToLower().Contains(query)),
-
                     "tier" => products = products.Where(product => product.Tier.Name.ToLower() == query),
-
                     "category" => products.Where(product => product.Category.Name.ToLower() == query),
-
                     _ => products
                 };
             }

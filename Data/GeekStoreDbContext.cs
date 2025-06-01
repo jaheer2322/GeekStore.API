@@ -84,11 +84,6 @@ namespace GeekStore.API.Data
                 },
                 new Category
                 {
-                    Id = Guid.Parse("be730ab1-9f45-41ab-a094-bc1b8a301a03"),
-                    Name = "Graphics card"
-                },
-                new Category
-                {
                     Id = Guid.Parse("a24ad4ff-ad4a-4dd7-8ac0-53a6216ab93f"),
                     Name = "Miscellaneous"
                 },
