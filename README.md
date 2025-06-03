@@ -19,7 +19,7 @@ GeekStore is a high-performance backend platform for PC part management and LLM-
 
 GeekStore is an API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
 
-This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API** to implement **Retrieval Augmented Generation (RAG)**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
+This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
 
 ## Technologies Used
 
@@ -62,7 +62,7 @@ This project is built using **ASP.NET Core Web API** and **Entity Framework Core
 
 ## Recommendation Engine
 
-A cutting-edge feature that helps users build optimized PC configurations using **Retrieval Augmented Generation (RAG)**.
+A cutting-edge feature that helps users build optimized PC configurations using **Semantic search** and **LLM Integration**.
 
 ### How It Works
 
