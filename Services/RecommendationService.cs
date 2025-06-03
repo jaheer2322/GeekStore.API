@@ -71,8 +71,11 @@ namespace GeekStore.API.Services
                 "Category3": "GUID"
               }
             ]
-            Make sure that the builds have compatible cpu and motherboard sockets and low to zero bottleneck among its components.
-            Do NOT include any explanations or additional formatting. Return only the JSON array.
+            
+            - MUST have compatible CPU and Motherboard sockets (see description for sockets),
+            - Make sure that the builds have low bottleneck among its components.
+            - Avoid giving same parts for both builds.
+            - Do NOT include any explanations or additional formatting. Return only the JSON array.
             """;
 
             var llmResultJson = await _llmService.GenerateRecommendationAsync(systemPrompt, query, availableProductsJson);
@@ -108,7 +111,7 @@ namespace GeekStore.API.Services
                 recommendedBuilds.Add(new BuildDto { Parts = parts });
             }
 
-            var message = recommendedBuilds.Count == 0
+            var message = (recommendedBuilds.Count() == 0)
                 ? "Sorry, we currently cannot recommend a PC build for your query. Please make sure that the query is related to PC recommendation."
                 : "Here are the recommended PC builds based on your query among our best available components. Please note that currently there are no suitable products for the categories that are not mentioned in the recommendations";
 

@@ -56,7 +56,7 @@ namespace GeekStore.API.Controllers
 
             if(product == null)
             {
-                return BadRequest("Product creation failed");
+                return BadRequest("Product creation failed, the given product already exists");
             }
 
             // Return the created product
@@ -75,15 +75,25 @@ namespace GeekStore.API.Controllers
                 return BadRequest("Product list cannot be empty.");
             }
 
+            if(createProductDtos.Count() > 200)
+            {
+                return BadRequest("Product addition count exceeded! Atmost 200 products are allowed at once.");
+            }
+
             // Map DTOs to domain models
             var products = _mapper.Map<List<Product>>(createProductDtos);
 
             // Save to DB using repository
             var createdProducts = await _productService.CreateMultipleAsync(products);
 
-            if (createdProducts == null || !createdProducts.Any())
+            if (createdProducts == null)
             {
-                return BadRequest("Product creation failed");
+                return BadRequest("Product creation failed!");
+            }
+
+            if(createdProducts.Count() != createProductDtos.Count())
+            {
+                return BadRequest($"Duplicate found for product: {createProductDtos[createdProducts.Count()].Name}");
             }
 
             // Map domain models to response DTOs
@@ -149,11 +159,6 @@ namespace GeekStore.API.Controllers
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
         {
             var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO.Query);
-            
-            if(recommendations == null)
-            {
-                return NotFound("No recommendations found for the given query.");
-            }
 
             return Ok(recommendations);
         }

@@ -22,10 +22,25 @@ namespace GeekStore.API.Services
                 return null;
             }
 
-            string embeddingString = $"Name: {createdProduct.Name}. " +
-                      $"Description: {createdProduct.Description}. " +
-                      $"Category: {createdProduct.Category.Name}, Tier: {createdProduct.Tier.Name}. " +
-                      $"Price: ${createdProduct.Price}, Quantity in stock: {createdProduct.Quantity}.";
+            string embeddingString;
+
+            bool hasDescription = !string.IsNullOrWhiteSpace(createdProduct.Description);
+            bool hasReview = !string.IsNullOrWhiteSpace(createdProduct.Review);
+
+            if (hasDescription && hasReview)
+            {
+                embeddingString = $"{createdProduct.Description} {createdProduct.Tier.Name} {createdProduct.Category.Name}. {createdProduct.Review}";
+            }
+            else if (!hasDescription && hasReview)
+            {
+                embeddingString = $"{createdProduct.Name} {createdProduct.Tier.Name} {createdProduct.Category.Name}. {createdProduct.Review}";
+            }
+            else
+            {
+                // Covers both: (hasDescription && !hasReview) and (!hasDescription && !hasReview)
+                var baseString = hasDescription ? createdProduct.Description : createdProduct.Name;
+                embeddingString = $"{baseString} {createdProduct.Tier.Name} {createdProduct.Category.Name}.";
+            }
 
             _embeddingQueue.Enqueue(createdProduct.Id, embeddingString);
 
@@ -40,7 +55,7 @@ namespace GeekStore.API.Services
                 var createdProduct = await CreateAsync(product);
                 if (createdProduct == null)
                 {
-                    return null;
+                    return createdProducts;
                 }
                 createdProducts.Add(createdProduct);
             }

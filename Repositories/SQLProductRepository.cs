@@ -17,10 +17,24 @@ namespace GeekStore.API.Repositories
 
         public async Task<Product?> CreateAsync(Product product)
         {
+            bool exists = await _geekStoreDbContext.Products
+                .AnyAsync(p => p.Name == product.Name
+                            && p.TierId == product.TierId
+                            && p.CategoryId == product.CategoryId);
+
+            if (exists)
+            {
+                return null;
+            }
+
             await _geekStoreDbContext.Products.AddAsync(product);
             await _geekStoreDbContext.SaveChangesAsync();
 
-            var createdProduct = _geekStoreDbContext.Products.Include("Tier").Include("Category").FirstOrDefault(_product => _product.Id == product.Id);
+            var createdProduct = _geekStoreDbContext.Products
+                .Include("Tier")
+                .Include("Category")
+                .FirstOrDefault(_product => _product.Id == product.Id);
+            
             if(createdProduct == null)
             {
                 return null;
@@ -126,8 +140,6 @@ namespace GeekStore.API.Repositories
         }
         public async Task<Dictionary<string, List<Product>>> GetSimilarProductsAsync(Vector inputVector)
         {
-            var vectorLiteral = $"[{string.Join(",", inputVector.ToArray())}]";
-
             var categories = await _geekStoreDbContext.Categories.ToListAsync();
             var result = new Dictionary<string, List<Product>>();
        
@@ -137,7 +149,7 @@ namespace GeekStore.API.Repositories
                     .FromSqlRaw(@"
                         SELECT * FROM ""Products""
                         WHERE ""CategoryId"" = {0}
-                        ORDER BY (""Embedding"" <=> {1}) < 0.3 -- Distance threshold
+                        ORDER BY (""Embedding"" <=> {1})
                         LIMIT 5", category.Id, inputVector)
                     .ToListAsync();
 

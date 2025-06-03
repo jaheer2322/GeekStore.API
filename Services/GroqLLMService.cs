@@ -18,7 +18,7 @@ namespace GeekStore.API.Services
             var request = new JsonObject
             {
                 ["model"] = _llmModel,
-                ["temperature"] = 0,
+                ["temperature"] = 0.5,
                 ["messages"] = new JsonArray
                 {
                     new JsonObject
@@ -40,7 +40,7 @@ namespace GeekStore.API.Services
 
             if(recommededProducts == null)
             {
-                throw new Exception("Failed to generate embedding");
+                throw new Exception("LLM failed to generate a recommendation");
             }
 
             return recommededProducts;
