@@ -137,6 +137,53 @@ A cutting-edge feature that helps users build optimized PC configurations using 
 |                    | `/api/categories/{id}` | DELETE | Writer        | Delete category by ID                       |
 | **Recommendation** | `/api/recommendations` | POST   | Reader        | Generate PC build recommendations (via LLM) |
 
+#### Request bodies
+##### POST `/products`
+
+###### ➤ Request Body
+
+```json
+{
+  "name": "Corsair Vengeance RGB 32 GB DDR5-6000",
+  "price": 12999.99,
+  "description": "High-performance DDR5 RAM with dynamic RGB lighting and tight timings for gaming and multitasking.",
+  "review": "Fantastic value for gamers. Solid performance with great overclocking headroom.",
+  "tierId": "b6e2313b-3f46-4e76-9db0-22993c3086ab",
+  "categoryId": "f5c5ab60-64bb-4bb0-b271-8b8a9b5d83c7"
+}
+```
+
+###### Validation Rules
+
+| Field         | Type    | Constraints                                 |
+|---------------|---------|---------------------------------------------|
+| `name`        | string  | Required, 1–100 characters                  |
+| `price`       | double  | Required, must be between 1 and 1,000,000   |
+| `description` | string  | Optional, 1–1000 characters                 |
+| `review`      | string  | Optional, 10–5000 characters                |
+| `tierId`      | GUID    | Required                                    |
+| `categoryId`  | GUID    | Required                                    |
+
+---
+
+###### POST `/recommend`
+
+###### ➤ Request Body
+
+```json
+{
+  "query": "Build me a high-end gaming PC for 4K gaming and streaming",
+  "isExplanationNeeded": true
+}
+```
+
+###### Validation Rules
+
+| Field               | Type    | Constraints                          |
+|---------------------|---------|--------------------------------------|
+| `query`             | string  | Required, minimum 24 characters     |
+| `isExplanationNeeded` | boolean | Optional, default: `false`           |
+
 #### Endpoints screeshot in swagger
 ![Swagger endpoints full](./Assets/Screenshots/SwaggerEndpointsFull.jpg))
 
