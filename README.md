@@ -88,7 +88,7 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - A **cosine similarity search** is performed on the stored product vectors (via `pgvector`) using Entity Framework + PostgreSQL.
 
 5. **Top Matches Per Category**
-   - The backend retrieves the **top 5 most relevant products per category** (CPU, GPU, RAM, etc.). Also implements low confidence rejection for accurate results.
+   - The backend retrieves the **top 10 (CPU, Motherboard, GPU) & 5 (Storage, RAM, etc.) most relevant products per category**. Also implements low confidence rejection for accurate results.
 
 6. **LLM-Powered Optimization**
    - The shortlisted products and the original query are sent to a **Groq-hosted LLM**.
