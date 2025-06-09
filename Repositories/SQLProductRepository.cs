@@ -153,12 +153,11 @@ namespace GeekStore.API.Repositories
                 var topProducts = await _geekStoreDbContext.Products
                     .FromSqlRaw(@"
                                SELECT * FROM ""Products""  
-                               WHERE ""CategoryId"" = {0} AND (""Embedding"" <=> {1} <= 0.6) -- Distance threshold   
+                               WHERE ""CategoryId"" = {0} AND (""Embedding"" <=> {1} <= 0.7) -- Low confidence rejection
                                ORDER BY (""Embedding"" <=> {1})  
                                LIMIT {2}", category.Id, inputVector, limit)
                     .ToListAsync();
-
-                // Low confidence rejection  
+  
                 if (topProducts.Any())
                 {
                     result[category.Name] = topProducts;

@@ -18,7 +18,7 @@ namespace GeekStore.API.Services
             var request = new JsonObject
             {
                 ["model"] = _llmModel,
-                ["temperature"] = 0.5,
+                ["temperature"] = 0,
                 ["messages"] = new JsonArray
                 {
                     new JsonObject
