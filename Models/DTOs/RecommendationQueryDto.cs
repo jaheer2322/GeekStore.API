@@ -6,5 +6,6 @@ namespace GeekStore.API.Models.DTOs
     {
         [MinLength(24)]
         public string Query { get; set; }
+        public bool IsExplanationNeeded { get; set; } = false;
     }
 }
