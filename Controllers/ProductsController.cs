@@ -158,7 +158,7 @@ namespace GeekStore.API.Controllers
         [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
         {
-            var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO.Query);
+            var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO);
 
             return Ok(recommendations);
         }

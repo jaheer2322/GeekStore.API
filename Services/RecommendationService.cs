@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using GeekStore.API.Models.DTOs;
-using GeekStore.API.Models.Domains;
 using GeekStore.API.Services.Interfaces;
 using GeekStore.API.Repositories.Interfaces;
 
@@ -22,8 +21,10 @@ namespace GeekStore.API.Services
             _mapper = mapper;
         }
 
-        public async Task<RecommendationsDto?> GetRecommendationAsync(string query)
+        public async Task<RecommendationsDto?> GetRecommendationAsync(RecommendationQueryDto queryDTO)
         {
+            string query = queryDTO.Query.Trim();
+
             // Embed the query
             var embeddedQuery = await _embeddingService.GenerateEmbeddingAsync(query);
 
@@ -43,83 +44,122 @@ namespace GeekStore.API.Services
 
             // Get LLM recommendation result (JSON string)
             var systemPrompt = """
-            You are an expert PC builder.
+               You are an expert PC builder.
 
-            You will receive two things:
-            1. A user query describing their PC needs.
-            2. A JSON object of available PC components grouped by category. Each category has exactly 5 products, each with a unique GUID.
+               You will receive:
+               1. A user query describing PC requirements.
+               2. A JSON object of available components grouped by category. Each category contains 5 products, each with a unique GUID.
 
-            Your task:
-            - Return an array of EXACTLY TWO valid PC builds.
-            - Each build must be a flat JSON object: each key is a category (as given in input), and each value is a GUID (copied exactly from input).
-            - DO NOT invent or add new categories not present in the input — return only the categories exactly as-is.
-            - DO NOT change, merge, or generate GUIDs. Copy the GUIDs from input exactly.
-            - Values must ONLY be GUID strings — no objects, names, or explanations.
-            - Output must be a plain JSON array with two builds. No text before or after.
-            - If a valid build cannot be created based on input or query, return an empty array: `[]`.
+               Your task:
+               - Return up to 2 valid PC builds as a JSON array.
+               - Each build must be a flat JSON object with keys as category names (exactly as given), and values as GUID strings (copied exactly from input).
+               - Use only provided categories. Do not add, rename, or merge categories.
+               - Do not invent or modify GUIDs.
+               - Do not reuse the same components across both builds.
+               - A build is valid **only if the CPU and Motherboard have the same socket type**, which is mentioned at the start of their `description` field (e.g., "Socket: AM5"). If no valid builds are possible, return `[]`.
 
-            Example format:
-            [
-              {
-                "Category1": "GUID",
-                "Category2": "GUID",
-                "Category3": "GUID"
-              },
-              {
-                "Category1": "GUID",
-                "Category2": "GUID",
-                "Category3": "GUID"
-              }
-            ]
-            
-            - MUST have compatible CPU and Motherboard sockets (see description for sockets),
-            - Make sure that the builds have low bottleneck among its components.
-            - Avoid giving same parts for both builds.
-            - Do NOT include any explanations or additional formatting. Return only the JSON array.
-            """;
+               Constraints:
+               - Select parts that best match the user's query.
+               - Ensure low bottleneck across components.
+               - Return only the JSON array. 
+               - No explanations or text before/after.
+               - Output should be pure JSON without any additional text or formatting.
+
+               Additional Instructions:
+               - Make sure the data you return in the <think> tag is as if you are a PC expert talking to the user directly.
+               - At last one again check for the Cpu and Motherboard sockets and gracefully avoid build with wrong socket types.
+
+               Example:
+               [
+                 {
+                   "Category1": "GUID",
+                   "Category2": "GUID",
+                   ...
+                 },
+                 {
+                   "Category1": "GUID",
+                   "Category2": "GUID",
+                   ...
+                 }
+               ]
+           """;
 
             var llmResultJson = await _llmService.GenerateRecommendationAsync(systemPrompt, query, availableProductsJson);
 
-            // Deserialize LLM output
-            var rawBuilds = JsonSerializer.Deserialize<List<Dictionary<string, Guid>>>(llmResultJson);
+            // Process the LLM output
+            // 1. Extract <think>...</think> content (if present)
+            string? think = null;
+            string? jsonArray = null;
+
+            const string thinkStart = "<think>";
+            const string thinkEnd = "</think>";
+
+            int thinkStartIdx = llmResultJson.IndexOf(thinkStart, StringComparison.OrdinalIgnoreCase);
+            int thinkEndIdx = llmResultJson.IndexOf(thinkEnd, StringComparison.OrdinalIgnoreCase);
+
+            if (thinkStartIdx != -1 && thinkEndIdx != -1 && thinkEndIdx > thinkStartIdx)
+            {
+                int contentStart = thinkStartIdx + thinkStart.Length;
+                think = llmResultJson.Substring(contentStart, thinkEndIdx - contentStart).Trim();
+
+                // The JSON array should be after </think>
+                int jsonStart = llmResultJson.IndexOf('[', thinkEndIdx);
+                if (jsonStart != -1)
+                {
+                    jsonArray = llmResultJson.Substring(jsonStart).Trim();
+                }
+            }
+            else
+            {
+                // No <think> tag, assume the whole string is the JSON array
+                int jsonStart = llmResultJson.IndexOf('[');
+                if (jsonStart != -1)
+                {
+                    jsonArray = llmResultJson.Substring(jsonStart).Trim();
+                }
+                else
+                {
+                    jsonArray = llmResultJson.Trim();
+                }
+            }
+
+            // 2. Deserialize the JSON array
+            var rawBuilds = JsonSerializer.Deserialize<List<Dictionary<string, Guid>>>(jsonArray);
             if (rawBuilds == null) return null;
 
-            // Map to BuildDto
+            // 3. Map to BuildDto (your existing logic)
             var recommendedBuilds = new List<BuildDto>();
-
             foreach (var build in rawBuilds)
             {
                 if (build.Keys.Except(similarProducts.Keys).Any())
-                {
                     throw new Exception("LLM returned categories that were not provided.");
-                }
 
                 var parts = new Dictionary<string, RecommendedProductDto>();
+                double totalPrice = 0;
 
                 foreach (var (category, productId) in build)
                 {
                     var product = similarProducts[category].FirstOrDefault(p => p.Id == productId);
-                    
                     if (product == null)
-                    {
                         throw new Exception($"Product with ID {productId} not found in category {category}.");
-                    }
 
                     parts[category] = _mapper.Map<RecommendedProductDto>(product);
+                    totalPrice += product.Price;
                 }
-
-                recommendedBuilds.Add(new BuildDto { Parts = parts });
+                recommendedBuilds.Add(new BuildDto { Parts = parts, totalBuildPrice = totalPrice });
             }
 
-            var message = (recommendedBuilds.Count() == 0)
+            // 4. Compose the message
+            var message = (recommendedBuilds.Count == 0)
                 ? "Sorry, we currently cannot recommend a PC build for your query. Please make sure that the query is related to PC recommendation."
-                : "Here are the recommended PC builds based on your query among our best available components. Please note that currently there are no suitable products for the categories that are not mentioned in the recommendations";
+                : "Here are the recommended PC builds based on your query among our best available components.";
 
-            // Wrap in DTO and return
+            // 5. Return DTO
             return new RecommendationsDto
             {
                 Message = message,
-                Builds = recommendedBuilds
+                Builds = recommendedBuilds,
+                Explanation = (queryDTO.IsExplanationNeeded && string.IsNullOrWhiteSpace(think)) ? null : think
             };
         }
     }

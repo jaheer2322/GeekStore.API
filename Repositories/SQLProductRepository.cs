@@ -142,18 +142,23 @@ namespace GeekStore.API.Repositories
         {
             var categories = await _geekStoreDbContext.Categories.ToListAsync();
             var result = new Dictionary<string, List<Product>>();
-       
-            foreach(var category in categories)
+
+            // Giving more number of CPU, GPU and Motherboard options as they are the core components  
+            var coreComponents = new List<string> { "CPU", "Motherboard", "GPU" };
+
+            foreach (var category in categories)
             {
+                var limit = coreComponents.Contains(category.Name) ? 10 : 5;
+
                 var topProducts = await _geekStoreDbContext.Products
                     .FromSqlRaw(@"
-                        SELECT * FROM ""Products""
-                        WHERE ""CategoryId"" = {0}
-                        ORDER BY (""Embedding"" <=> {1})
-                        LIMIT 5", category.Id, inputVector)
+                               SELECT * FROM ""Products""  
+                               WHERE ""CategoryId"" = {0} AND (""Embedding"" <=> {1} <= 0.6) -- Distance threshold   
+                               ORDER BY (""Embedding"" <=> {1})  
+                               LIMIT {2}", category.Id, inputVector, limit)
                     .ToListAsync();
 
-                // Low confidence rejection
+                // Low confidence rejection  
                 if (topProducts.Any())
                 {
                     result[category.Name] = topProducts;
