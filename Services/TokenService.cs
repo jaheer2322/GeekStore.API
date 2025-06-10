@@ -3,12 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using DotNetEnv;
-using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 
-namespace GeekStore.API.Repositories
+namespace GeekStore.API.Services
 {
-    public class TokenRepository : ITokenRepository
+    public class TokenService : ITokenService
     {
         public string CreateJwtToken(IdentityUser user, List<string> roles)
         {

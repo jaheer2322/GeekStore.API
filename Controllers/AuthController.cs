@@ -1,5 +1,5 @@
 ﻿using GeekStore.API.Models.DTOs;
-using GeekStore.API.Repositories.Interfaces;
+using GeekStore.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +10,12 @@ namespace GeekStore.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ITokenRepository _tokenRepository;
+        private readonly ITokenService _tokenService;
 
-        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
+        public AuthController(UserManager<IdentityUser> userManager, ITokenService tokenService)
         {
            _userManager = userManager;
-            _tokenRepository = tokenRepository;
+            _tokenService = tokenService;
         }
         // POST: https://localhost/api/register
         [HttpPost]
@@ -58,7 +58,7 @@ namespace GeekStore.API.Controllers
                     var roles = await _userManager.GetRolesAsync(user);
 
                     // Token Generation
-                    var jwtToken = _tokenRepository.CreateJwtToken(user, roles.ToList());
+                    var jwtToken = _tokenService.CreateJwtToken(user, roles.ToList());
                     var response = new LoginResponseDto { JwtToken = jwtToken };
 
                     return Ok(response);

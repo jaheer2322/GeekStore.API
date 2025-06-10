@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace GeekStore.API.Repositories.Interfaces
+namespace GeekStore.API.Services.Interfaces
 {
-    public interface ITokenRepository
+    public interface ITokenService
     {
         string CreateJwtToken(IdentityUser user, List<string> roles);
 

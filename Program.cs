@@ -96,7 +96,7 @@ builder.Services.AddScoped<GroqApiClient>(sp =>
 builder.Services.AddScoped<ITierRepository, SQLTierRepository>();
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
-builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Register AutoMapper with your profile mappings
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
