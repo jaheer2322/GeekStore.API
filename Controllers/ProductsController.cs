@@ -75,9 +75,11 @@ namespace GeekStore.API.Controllers
                 return BadRequest("Product list cannot be empty.");
             }
 
-            if(createProductDtos.Count() > 200)
+            var count = createProductDtos.Count();
+
+            if (count > 200)
             {
-                return BadRequest("Product addition count exceeded! Atmost 200 products are allowed at once.");
+                return BadRequest($"Product creation count exceeded (got {count})! Atmost 200 products are allowed at once.");
             }
 
             // Map DTOs to domain models
