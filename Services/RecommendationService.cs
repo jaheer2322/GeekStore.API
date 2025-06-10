@@ -3,6 +3,7 @@ using AutoMapper;
 using GeekStore.API.Models.DTOs;
 using GeekStore.API.Services.Interfaces;
 using GeekStore.API.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace GeekStore.API.Services
 {
@@ -55,30 +56,32 @@ namespace GeekStore.API.Services
                - Each build must be a flat JSON object with keys as category names (exactly as given), and values as GUID strings (copied exactly from input).
                - Use only provided categories. Do not add, rename, or merge categories.
                - Do not invent or modify GUIDs.
-               - Do not reuse the same components across both builds.
-               - A build is valid **only if the CPU and Motherboard have the same socket type**, which is mentioned at the start of their `description` field (e.g., "Socket: AM5"). If no valid builds are possible, return `[]`.
+               - Think about each build individually one after the other and you are free to use the same parts for both but with atleast 2 parts different if query requires.
 
                Constraints:
+               - A build is valid **only if the CPU and Motherboard have the same socket type**, which is mentioned at the start of their `description` field (e.g., "Socket: AM5"). If no valid builds are possible, return `[]`.
+               - Prioratize socket compatibility over anything else. Each decision you make should be based on socket compatibility first, then performance, and then price.
                - Select parts that best match the user's query.
                - Ensure low bottleneck across components.
                - Return only the JSON array. 
                - No explanations or text before/after.
                - Output should be pure JSON without any additional text or formatting.
 
-               Additional Instructions:
+               FInal Checks:
                - Make sure the data you return in the <think> tag is as if you are a PC expert talking to the user directly.
-               - At last one again check for the Cpu and Motherboard sockets and gracefully avoid build with wrong socket types.
+               - After everything once again check for socket compatibility between Motherboard and CPU.
+               - Also check whether the guids you return are exactly as in the available product guids.
 
                Example:
                [
                  {
-                   "Category1": "GUID",
-                   "Category2": "GUID",
+                   "Category1": "GUID (exact GUID as in the available products)",
+                   "Category2": "GUID (exact GUID as in the available products)",
                    ...
                  },
                  {
-                   "Category1": "GUID",
-                   "Category2": "GUID",
+                   "Category1": "GUID (exact GUID as in the available products)",
+                   "Category2": "GUID (exact GUID as in the available products)",
                    ...
                  }
                ]
@@ -146,7 +149,8 @@ namespace GeekStore.API.Services
                     parts[category] = _mapper.Map<RecommendedProductDto>(product);
                     totalPrice += product.Price;
                 }
-                recommendedBuilds.Add(new BuildDto { Parts = parts, totalBuildPrice = totalPrice });
+
+                recommendedBuilds.Add(new BuildDto { Parts = parts, totalBuildPrice = Math.Round(totalPrice, 2) });
             }
 
             // 4. Compose the message
