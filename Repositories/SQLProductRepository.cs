@@ -99,9 +99,15 @@ namespace GeekStore.API.Repositories
         public async Task<Product?> UpdateAsync(Guid id, Product updatedProduct)
         {
             var product = await _geekStoreDbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
-            
-            if (product == null)
+
+            bool exists = await _geekStoreDbContext.Products
+                .AnyAsync(p => p.Name == updatedProduct.Name
+                            && p.TierId == updatedProduct.TierId
+                            && p.CategoryId == updatedProduct.CategoryId);
+
+            if (exists || product == null)
                 return null;
+
 
             product.Name = updatedProduct.Name;
             product.Description = updatedProduct.Description;
