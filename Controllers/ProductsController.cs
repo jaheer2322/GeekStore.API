@@ -174,7 +174,7 @@ namespace GeekStore.API.Controllers
         {
             var updatedProduct = _mapper.Map<Product>(updateProductRequestDto);
 
-            var product = await _productRepository.UpdateAsync(id, updatedProduct);
+            var product = await _productService.UpdateAsync(id, updatedProduct);
 
             if(product == null)
                 return NotFound();

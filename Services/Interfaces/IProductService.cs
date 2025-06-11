@@ -7,5 +7,6 @@ namespace GeekStore.API.Services.Interfaces
     {
         Task<Product?> CreateAsync(Product product);
         Task<List<Product>?> CreateMultipleAsync(List<Product> products);
+        Task<Product?> UpdateAsync(Guid id, Product updatedProduct);
     }
 }
