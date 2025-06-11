@@ -17,11 +17,46 @@ namespace GeekStore.API.Services
         {
             var createdProduct = await _productRepository.CreateAsync(product);
 
-            if(createdProduct == null)
+            if (createdProduct == null)
             {
                 return null;
             }
 
+            SaveEmbedding(createdProduct);
+            return createdProduct;
+        }
+        public async Task<List<Product>?> CreateMultipleAsync(List<Product> products)
+        {
+            var createdProducts = new List<Product>();
+
+            foreach (var product in products)
+            {
+                var createdProduct = await CreateAsync(product);
+                if (createdProduct == null)
+                {
+                    return createdProducts;
+                }
+                createdProducts.Add(createdProduct);
+            }
+
+            return createdProducts;
+        }
+
+        public async Task<Product?> UpdateAsync(Guid id, Product productDetails)
+        {
+            var updateProduct = await _productRepository.UpdateAsync(id, productDetails);
+
+            if (updateProduct == null)
+            {
+                return null;
+            }
+
+            SaveEmbedding(updateProduct);
+            return updateProduct;
+        }
+
+        private void SaveEmbedding(Product createdProduct)
+        {
             string embeddingString;
 
             bool hasDescription = !string.IsNullOrWhiteSpace(createdProduct.Description);
@@ -43,24 +78,6 @@ namespace GeekStore.API.Services
             }
 
             _embeddingQueue.Enqueue(createdProduct.Id, embeddingString);
-
-            return createdProduct;
-        }
-        public async Task<List<Product>?> CreateMultipleAsync(List<Product> products)
-        {
-            var createdProducts = new List<Product>();
-            
-            foreach (var product in products)
-            {
-                var createdProduct = await CreateAsync(product);
-                if (createdProduct == null)
-                {
-                    return createdProducts;
-                }
-                createdProducts.Add(createdProduct);
-            }
-
-            return createdProducts;
         }
     }
 }
