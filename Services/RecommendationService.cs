@@ -126,9 +126,13 @@ namespace GeekStore.API.Services
                 }
             }
 
+            if(think==null || jsonArray == null)
+            {
+                throw new Exception("LLM response is not in the expected format.");
+            }
+
             // 2. Deserialize the JSON array
             var rawBuilds = JsonSerializer.Deserialize<List<Dictionary<string, Guid>>>(jsonArray);
-            if (rawBuilds == null) return null;
 
             // 3. Map to BuildDto (your existing logic)
             var recommendedBuilds = new List<BuildDto>();

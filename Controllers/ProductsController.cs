@@ -176,8 +176,10 @@ namespace GeekStore.API.Controllers
 
             var product = await _productService.UpdateAsync(id, updatedProduct);
 
-            if(product == null)
-                return NotFound();
+            if (product == null)
+            {
+                return BadRequest("Product creation failed, the given product already exists");
+            }
 
             var updatedProductDto = _mapper.Map<ProductDto>(product);
             return Ok(updatedProductDto);

@@ -44,15 +44,15 @@ namespace GeekStore.API.Services
 
         public async Task<Product?> UpdateAsync(Guid id, Product productDetails)
         {
-            var updateProduct = await _productRepository.UpdateAsync(id, productDetails);
+            var updatedProduct = await _productRepository.UpdateAsync(id, productDetails);
 
-            if (updateProduct == null)
+            if (updatedProduct == null)
             {
                 return null;
             }
 
-            SaveEmbedding(updateProduct);
-            return updateProduct;
+            SaveEmbedding(updatedProduct);
+            return updatedProduct;
         }
 
         private void SaveEmbedding(Product createdProduct)
