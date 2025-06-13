@@ -11,10 +11,8 @@ namespace GeekStore.API.Models.DTOs
         [Required]
         [Range(1, 1000000)]
         public double Price { get; set; }
-        [MinLength(1)]
         [MaxLength(1000)]
         public string? Description { get; set; }
-        [MinLength(10)]
         [MaxLength(5000)]
         public string? Review { get; set; }
         [Required]

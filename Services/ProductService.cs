@@ -25,7 +25,7 @@ namespace GeekStore.API.Services
             SaveEmbedding(createdProduct);
             return createdProduct;
         }
-        public async Task<List<Product>?> CreateMultipleAsync(List<Product> products)
+        public async Task<List<Product>> CreateMultipleAsync(List<Product> products)
         {
             var createdProducts = new List<Product>();
 

@@ -126,7 +126,7 @@ namespace GeekStore.API.Services
                 }
             }
 
-            if(think==null || jsonArray == null)
+            if(string.IsNullOrWhiteSpace(think) || string.IsNullOrWhiteSpace(jsonArray))
             {
                 throw new Exception("LLM response is not in the expected format.");
             }
@@ -167,7 +167,7 @@ namespace GeekStore.API.Services
             {
                 Message = message,
                 Builds = recommendedBuilds,
-                Explanation = (queryDTO.IsExplanationNeeded && string.IsNullOrWhiteSpace(think)) ? null : think
+                Explanation = queryDTO.IsExplanationNeeded ? think : null
             };
         }
     }
