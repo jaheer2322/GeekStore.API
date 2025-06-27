@@ -3,7 +3,6 @@
 ![ASP.NETCore](https://img.shields.io/badge/ASP.NETCore-8-orange)
 ![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
-![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
 ![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
 ![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
 ![Python](https://img.shields.io/badge/Python-3-yellow)
