@@ -1,5 +1,5 @@
 ﻿# GeekStore API - Intelligent PC part management and recommendation API
-![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+![.NET](https://img.shields.io/badge/.NET-8.0-blue)
 ![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
 ![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
