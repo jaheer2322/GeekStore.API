@@ -1,13 +1,13 @@
-﻿# GeekStore API
-![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+﻿# GeekStore API - Intelligent PC part management and recommendation API
+![.NET](https://img.shields.io/badge/.NET-8.0-blue)
+![ASP.NETCore](https://img.shields.io/badge/ASP.NETCore-8-orange)
 ![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
-![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
 ![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
 ![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
 ![Python](https://img.shields.io/badge/Python-3-yellow)
 
-GeekStore is a high-performance backend platform for PC part management and LLM-powered build recommendations — built with ASP.NET Core, PostgreSQL, and pgvector.
+GeekStore is a high-performance backend platform for PC part management and LLM-powered build recommendations — built with ASP.NET Core, PostgreSQL and pgvector.
 
 <p align="center">
   <img src="./Assets/Architecture/ProductCreationCodeFlow.gif" width="35%" alt="Demo of GeekStore Product Creation" />
@@ -17,18 +17,22 @@ GeekStore is a high-performance backend platform for PC part management and LLM-
 
 ## Description
 
-GeekStore is an API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
+GeekStore is a RESTful, API-first backend platform designed to manage products, tiers, and categories for computer hardware. It features secure authentication and role-based authorization, CRUD functionality for all core resources, and a smart recommendation engine powered by an LLM integrated via Groq API.
 
-This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced vector similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It also includes a Python microservice for **embedding generation**, keeping architecture modular and clean.
+This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced semantic similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It cintains a dedicated Python microservice asynchronously generates embeddings, decoupled via a queue-based pipeline to ensure optimal performance and modularity.
 
-## Technologies Used
+## Tech Stack
 
-- **C# ASP.NET Core Web API**
-- **Entity Framework Core + PostgreSQL + SQL Server**
-- **pgvector** for vector similarity search
-- **Groq LLM API** for intelligent build generation
-- **AutoMapper** for clean DTO mappings
-- **Python (optional)** for embedding service via `pythonnet`
+| Component                  | Technology Used                                              |
+|---------------------------|--------------------------------------------------------------|
+| Backend Framework         | ASP.NET Core Web API                                         |
+| ORM & Databases           | Entity Framework Core, PostgreSQL, SQL Server               |
+| Vector Similarity Search  | pgvector (PostgreSQL extension)                             |
+| AI/LLM Integration        | Groq LLM API                                                 |
+| Authentication & Roles   | ASP.NET Identity, JWT                                        |
+| DTO Mapping               | AutoMapper                                                  |
+| Embedding Service         | Python (via pythonnet for embedding generation)             |
+| Logging & Monitoring      | Serilog                                                     |
 
 ---
 
@@ -71,8 +75,8 @@ A cutting-edge feature that helps users build optimized PC configurations using 
 
 1. **Product Creation & Embedding**
    - When a new product is added, it is saved to the PostgreSQL and returns a response immediately.
-   - An embedding request is queued at the same time to generate embedding for the product via `IEmbeddingService`.
-   - The resulting vector is stored in PostgreSQL using the **pgvector** extension alongside product data.
+   - Upon successful creation of a product, an asynchronous embedding request is queued to generate embedding for the product via `IEmbeddingService`.
+   - The resulting vector is stored in PostgreSQL using the **pgvector** extension alongside the created product data.
 
 [Recommendation Codeflow]
 ![Recommendation Flow](./Assets/Architecture/RecommendationCodeFlow.gif)
@@ -91,13 +95,15 @@ A cutting-edge feature that helps users build optimized PC configurations using 
    - The backend retrieves the **top 10 (CPU, Motherboard, GPU) & 5 (Storage, RAM, etc.) most relevant products per category**. Also implements low confidence rejection for accurate results.
 
 6. **LLM-Powered Optimization**
-   - The shortlisted products and the original query are sent to a **Groq-hosted LLM**.
+   - The shortlisted products and the original query along with a system prompt are sent to a reasoning LLM (via `ILLMService`).
+   - The system uses strict rules in the prompt to ensure consistent output format and accuracy.
    - The LLM returns **two optimized PC builds** in the form of category-product ID mappings.
    - The engine implements graceful fallback messaging, ensuring clear and user-friendly responses even when no valid recommendations are found.
 
 7. **DTO Mapping & Final Output**
    - The recommended product IDs are mapped to full product details.
    - Two complete build recommendations are sent back to the client as `RecommendationsDto`.
+   - Explanation containing the thought process behind each decision. (If `isExplanationNeeded` set to true in user query)
 
 ### Performance & Scalability
 
@@ -106,7 +112,14 @@ A cutting-edge feature that helps users build optimized PC configurations using 
   - Efficient indexing via **HNSW**, ensuring sub-millisecond query times.
   - Stateless services and modular design — ideal for horizontal scaling under heavy load.
 - **LLM processing and embedding are fully offloaded**, keeping the API lightweight and performant under concurrent usage.
-- **Real-time recommendations stay fast** — even as your product catalog grows exponentially.
+- **Real-time recommendations stay fast** — even as the product catalog grows exponentially.
+- **Strict Prompting Strategy** — Groq LLM is guided with precise rules—returning only valid IDs, limiting to two results, and prioritizing accuracy. This ensures structured and reliable outputs.
+- **Fallback for No Match Scenarios** — If no high-confidence match is found, the system gracefully responds with a clear, fallback message—avoiding forced or irrelevant suggestions.
+- **Asynchronous Embedding Pipeline** — Embedding generation is fully decoupled and handled in the background using a task queue, boosting throughput without blocking user-facing endpoints.
+- **Optimized DTO Usage:** Reduces payload size and boosts performance with AutoMapper.
+- **Logging with Serilog:** Logs API activity to both console and persistent storage.
+- **Scalable Storage:** PostgreSQL and SQL Server integration support high data volume and fast access.
+- **Modular Architecture:** Follows clean coding practices with separation of controller, service, and repository layers.
 
 ### Example Query
 
@@ -140,7 +153,7 @@ A cutting-edge feature that helps users build optimized PC configurations using 
 #### Request bodies
 ##### POST `/products`
 
-###### ➤ Request Body
+###### ➤ Example Request Body
 
 ```json
 {
@@ -182,7 +195,7 @@ A cutting-edge feature that helps users build optimized PC configurations using 
 | Field               | Type    | Constraints                          |
 |---------------------|---------|--------------------------------------|
 | `query`             | string  | Required, minimum 24 characters     |
-| `isExplanationNeeded` | boolean | Optional, default: `false`           |
+| `isExplanationNeeded` | boolean | Optional          |
 
 #### Endpoints screeshot in swagger
 ![Swagger endpoints full](./Assets/Screenshots/SwaggerEndpointsFull.jpg))
@@ -250,7 +263,7 @@ PythonScriptsFolder=C:/Path/To/GeekStore/Python
 
 #### #Groq AI Configuration
 GroqApiKey=your_groq_api_key
-GroqLLMModel=llama3-8b-instruct
+GroqLLMModel=your_groq_llm_key
 </details>
 
 ## 3. Apply Migrations
