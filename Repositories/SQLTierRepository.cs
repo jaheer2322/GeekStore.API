@@ -23,11 +23,11 @@ namespace GeekStore.API.Repositories
         }
         public async Task<List<Tier>> GetAllAsync()
         {
-            return await _dbContext.Tiers.ToListAsync();
+            return await _dbContext.Tiers.AsNoTracking().ToListAsync();
         }
         public async Task<Tier?> GetByIDAsync(Guid id)
         {
-            return await _dbContext.Tiers.FirstOrDefaultAsync(tier => tier.Id == id);
+            return await _dbContext.Tiers.AsNoTracking().FirstOrDefaultAsync(tier => tier.Id == id);
         }
         public async Task<Tier?> UpdateAsync(Guid id, Tier tier)
         {

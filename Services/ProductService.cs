@@ -57,24 +57,15 @@ namespace GeekStore.API.Services
 
         private void SaveEmbedding(Product createdProduct)
         {
-            string embeddingString;
+            string baseString = !string.IsNullOrWhiteSpace(createdProduct.Description)
+                ? createdProduct.Description 
+                : createdProduct.Name;
 
-            bool hasDescription = !string.IsNullOrWhiteSpace(createdProduct.Description);
-            bool hasReview = !string.IsNullOrWhiteSpace(createdProduct.Review);
+            string embeddingString = $"{baseString} {createdProduct.Tier.Name} {createdProduct.Category.Name}.";
 
-            if (hasDescription && hasReview)
+            if (!string.IsNullOrWhiteSpace(createdProduct.Review))
             {
-                embeddingString = $"{createdProduct.Description} {createdProduct.Tier.Name} {createdProduct.Category.Name}. {createdProduct.Review}";
-            }
-            else if (!hasDescription && hasReview)
-            {
-                embeddingString = $"{createdProduct.Name} {createdProduct.Tier.Name} {createdProduct.Category.Name}. {createdProduct.Review}";
-            }
-            else
-            {
-                // Covers both: (hasDescription && !hasReview) and (!hasDescription && !hasReview)
-                var baseString = hasDescription ? createdProduct.Description : createdProduct.Name;
-                embeddingString = $"{baseString} {createdProduct.Tier.Name} {createdProduct.Category.Name}.";
+                embeddingString += $" {createdProduct.Review}";
             }
 
             _embeddingQueue.Enqueue(createdProduct.Id, embeddingString);

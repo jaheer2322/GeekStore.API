@@ -31,6 +31,7 @@ namespace GeekStore.API.Repositories
             await _geekStoreDbContext.SaveChangesAsync();
 
             var createdProduct = _geekStoreDbContext.Products
+                .AsNoTracking()
                 .Include("Tier")
                 .Include("Category")
                 .FirstOrDefault(_product => _product.Id == product.Id);
@@ -46,7 +47,10 @@ namespace GeekStore.API.Repositories
         public async Task<List<Product>> GetAllAsync(string? column, string? query, 
             string? sortBy, bool isAscending, int pageNumber, int pageSize)
         {
-            var products = _geekStoreDbContext.Products.Include("Tier").Include("Category");
+            var products = _geekStoreDbContext.Products
+                .AsNoTracking()
+                .Include("Tier")
+                .Include("Category");
 
             // Filtering
             if (string.IsNullOrWhiteSpace(column) == false && string.IsNullOrWhiteSpace(query) == false)
@@ -94,7 +98,11 @@ namespace GeekStore.API.Repositories
         }
         public async Task<Product?> GetByIdAsync(Guid id)
         {   
-            return await _geekStoreDbContext.Products.Include("Tier").Include("Category").FirstOrDefaultAsync(product => product.Id == id);
+            return await _geekStoreDbContext.Products
+                .AsNoTracking()
+                .Include("Tier")
+                .Include("Category")
+                .FirstOrDefaultAsync(product => product.Id == id);
         }
         public async Task<Product?> UpdateAsync(Guid id, Product updatedProduct)
         {
@@ -146,7 +154,7 @@ namespace GeekStore.API.Repositories
         }
         public async Task<Dictionary<string, List<Product>>> GetSimilarProductsAsync(Vector inputVector)
         {
-            var categories = await _geekStoreDbContext.Categories.ToListAsync();
+            var categories = await _geekStoreDbContext.Categories.AsNoTracking().ToListAsync();
             var result = new Dictionary<string, List<Product>>();
 
             // Giving more number of CPU, GPU and Motherboard options as they are the core components  

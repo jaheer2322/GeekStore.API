@@ -22,11 +22,13 @@ namespace GeekStore.API.Repositories
         }
         public async Task<Category?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Categories.FirstOrDefaultAsync(category => category.Id == id);
+            return await _dbContext.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(category => category.Id == id);
         }
         public async Task<List<Category>> GetAllAsync()
         {
-            return await _dbContext.Categories.ToListAsync();
+            return await _dbContext.Categories.AsNoTracking().ToListAsync();
         }
 
         public async Task<Category?> UpdateAsync(Guid id, Category updatedCategory)
