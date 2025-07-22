@@ -25,15 +25,6 @@ namespace GeekStore.API.Services
         {
             await foreach (var (productId, text) in _queue.Reader.ReadAllAsync(stoppingToken))
             { 
-                var pythonEngine = _serviceProvider.GetRequiredService<PythonEngineSingleton>();
-
-                // Ensure Python engine is initialized before processing
-                while (!pythonEngine.IsReady)
-                {
-                    _logger.LogInformation("Waiting for Python engine to be ready...");
-                    await Task.Delay(1000, stoppingToken);
-                }
-
                 try
                 {
                     using var scope = _serviceProvider.CreateScope();
