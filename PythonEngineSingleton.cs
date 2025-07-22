@@ -5,16 +5,17 @@ public sealed class PythonEngineSingleton
 {
     private bool _isReady = false;
     public bool IsReady => _isReady;
-
     public PythonEngineSingleton()
     {    
+        Console.WriteLine("Initializing Python engine...");
         PythonEngine.Initialize();
         PythonEngine.BeginAllowThreads();
+        Console.WriteLine("Python engine initialized successfully.");
     }
 
     public async Task WarmUpAsync()
     {
-        Console.WriteLine("Initializing python and its dependencies...");
+        Console.WriteLine("Initializing sentence transformer model...");
         await Task.Run(() =>
         {
             using (Py.GIL())
@@ -24,9 +25,9 @@ public sealed class PythonEngineSingleton
                 dynamic embeddingModule = Py.Import("embedding_service");
                 embeddingModule.get_embedding("warmup"); // dummy call to warm up the model
             }
-            _isReady = true;
-            Console.WriteLine("Python initialized and model warmed up successfully.");
         });
+        Console.WriteLine("Sentence transformer model warmed up successfully.");
+        _isReady = true;
     }
     public T RunWithGIL<T>(Func<T> func)
     {

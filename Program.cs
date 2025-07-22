@@ -164,7 +164,6 @@ app.MapControllers();
 // Initialize Python runtime for embedding service
 Runtime.PythonDLL = Environment.GetEnvironmentVariable("PythonDLLPath");
 var pythonEngine = app.Services.GetRequiredService<PythonEngineSingleton>();
-//await pythonEngine.WarmUpAsync();
 _ = Task.Run(() => pythonEngine.WarmUpAsync());
 
 // Ensure Python runtime is shut down on app exit
