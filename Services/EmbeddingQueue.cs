@@ -28,7 +28,7 @@ namespace GeekStore.API.Services
                 var pythonEngine = _serviceProvider.GetRequiredService<PythonEngineSingleton>();
 
                 // Ensure Python engine is initialized before processing
-                while (!pythonEngine.isReady)
+                while (!pythonEngine.IsReady)
                 {
                     _logger.LogInformation("Waiting for Python engine to be ready...");
                     await Task.Delay(1000, stoppingToken);

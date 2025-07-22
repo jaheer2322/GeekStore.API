@@ -162,7 +162,7 @@ namespace GeekStore.API.Controllers
         [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
         {
-            if(_pythonEngineSingleton.isReady == false)
+            if(!_pythonEngineSingleton.IsReady)
             {
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, "Python engine is not ready yet. Please try again shortly");
             }

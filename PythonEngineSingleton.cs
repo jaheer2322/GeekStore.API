@@ -3,7 +3,9 @@ using Python.Runtime;
 
 public sealed class PythonEngineSingleton
 {
-    public bool isReady = false;
+    private bool _isReady = false;
+    public bool IsReady => _isReady;
+
     public PythonEngineSingleton()
     {    
         PythonEngine.Initialize();
@@ -22,7 +24,7 @@ public sealed class PythonEngineSingleton
                 dynamic embeddingModule = Py.Import("embedding_service");
                 embeddingModule.get_embedding("warmup"); // dummy call to warm up the model
             }
-            isReady = true;
+            _isReady = true;
             Console.WriteLine("Python initialized and model warmed up successfully.");
         });
     }
