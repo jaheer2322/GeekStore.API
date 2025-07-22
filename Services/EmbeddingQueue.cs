@@ -18,12 +18,22 @@ namespace GeekStore.API.Services
         }
         public void Enqueue(Guid productId, string embeddingText)
         {
+            _logger.LogInformation("Enqueuing embedding for product {ProductId}", productId);
             _queue.Writer.TryWrite((productId, embeddingText));
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await foreach (var (productId, text) in _queue.Reader.ReadAllAsync(stoppingToken))
             { 
+                var pythonEngine = _serviceProvider.GetRequiredService<PythonEngineSingleton>();
+
+                // Ensure Python engine is initialized before processing
+                while (!pythonEngine.isReady)
+                {
+                    _logger.LogInformation("Waiting for Python engine to be ready...");
+                    await Task.Delay(1000, stoppingToken);
+                }
+
                 try
                 {
                     using var scope = _serviceProvider.CreateScope();
