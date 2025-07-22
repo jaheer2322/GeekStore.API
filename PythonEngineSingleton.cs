@@ -3,30 +3,31 @@ using Python.Runtime;
 
 public sealed class PythonEngineSingleton
 {
-    private static readonly PythonEngineSingleton instance = new PythonEngineSingleton();
-    public static PythonEngineSingleton Instance => instance;
+    private bool _isReady = false;
+    public bool IsReady => _isReady;
 
-    private PythonEngineSingleton()
-    {
-        Console.WriteLine("Initializing Python and its dependencies... This can take upto a minute");
-
-        var stopwatch = Stopwatch.StartNew();
-
+    public PythonEngineSingleton()
+    {    
         PythonEngine.Initialize();
         PythonEngine.BeginAllowThreads();
-
-        _ = RunWithGIL(() =>
-        {
-            dynamic sys = Py.Import("sys");
-            sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
-            dynamic embeddingModule = Py.Import("embedding_service");
-            return embeddingModule.get_embedding("warmup"); // dummy call
-        });
-
-        stopwatch.Stop();
-        Console.WriteLine($"Python initialized and model warmed up in {stopwatch.ElapsedMilliseconds} ms");
     }
 
+    public async Task WarmUpAsync()
+    {
+        Console.WriteLine("Initializing python and its dependencies...");
+        await Task.Run(() =>
+        {
+            using (Py.GIL())
+            {
+                dynamic sys = Py.Import("sys");
+                sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
+                dynamic embeddingModule = Py.Import("embedding_service");
+                embeddingModule.get_embedding("warmup"); // dummy call to warm up the model
+            }
+            _isReady = true;
+            Console.WriteLine("Python initialized and model warmed up successfully.");
+        });
+    }
     public T RunWithGIL<T>(Func<T> func)
     {
         using (Py.GIL())

@@ -72,6 +72,9 @@ builder.Services.AddSingleton<EmbeddingQueue>();
 builder.Services.AddSingleton<IEmbeddingQueue>(sp => sp.GetRequiredService<EmbeddingQueue>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<EmbeddingQueue>());
 
+// Register Python embedding service and warm up the Python runtime
+builder.Services.AddSingleton<PythonEngineSingleton>();
+
 // Register PostgreSQL main database with vector support for similarity search
 builder.Services.AddDbContext<GeekStoreDbContext>(options => options.UseNpgsql(
     Environment.GetEnvironmentVariable("GeekStoreConnectionString"),
@@ -160,12 +163,14 @@ app.MapControllers();
 
 // Initialize Python runtime for embedding service
 Runtime.PythonDLL = Environment.GetEnvironmentVariable("PythonDLLPath");
-_ = PythonEngineSingleton.Instance;
+var pythonEngine = app.Services.GetRequiredService<PythonEngineSingleton>();
+//await pythonEngine.WarmUpAsync();
+_ = Task.Run(() => pythonEngine.WarmUpAsync());
 
 // Ensure Python runtime is shut down on app exit
 app.Lifetime.ApplicationStopping.Register(() =>
 {
-    PythonEngineSingleton.Instance.Shutdown();
+    pythonEngine.Shutdown();
 });
 
 // Run the web application

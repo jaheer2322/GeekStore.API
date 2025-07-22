@@ -17,6 +17,7 @@ namespace GeekStore.API.Controllers
         private readonly IProductService _productService;
         private readonly IRecommendationService _recommendationService;
         private readonly IProductRepository _productRepository;
+        private readonly PythonEngineSingleton _pythonEngineSingleton;
         private readonly IMapper _mapper;
 
 
@@ -35,10 +36,11 @@ namespace GeekStore.API.Controllers
         // List of allowed query parameters for getAll request
         private readonly List<string> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
-        public ProductsController(IProductService productService, IProductRepository productRepository, IRecommendationService recommendationService, IMapper mapper) {
+        public ProductsController(IProductService productService, IProductRepository productRepository, IRecommendationService recommendationService, PythonEngineSingleton pythonEngineSingleton, IMapper mapper) {
             _productService = productService;
             _productRepository = productRepository;
             _recommendationService = recommendationService;
+            _pythonEngineSingleton = pythonEngineSingleton;
             _mapper = mapper;
         }
 
@@ -160,6 +162,11 @@ namespace GeekStore.API.Controllers
         [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
         {
+            if(!_pythonEngineSingleton.IsReady)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, "Python engine is not ready yet. Please try again shortly");
+            }
+
             var recommendations = await _recommendationService.GetRecommendationAsync(queryDTO);
 
             return Ok(recommendations);
