@@ -6,6 +6,11 @@ namespace GeekStore.API.Services
 {
     public class PythonEmbeddingService : IEmbeddingService
     {
+        private readonly PythonEngineSingleton _pythonEngineSingleton;
+        public PythonEmbeddingService(PythonEngineSingleton pythonEngineSingleton)
+        {
+            _pythonEngineSingleton = pythonEngineSingleton;
+        }
         public async Task<Vector> GenerateEmbeddingAsync(string text)
         {
             float[] embedding = GenerateEmbeddingFromPython(text);
@@ -20,7 +25,7 @@ namespace GeekStore.API.Services
 
         private float[] GenerateEmbeddingFromPython(string text)
         {
-            return PythonEngineSingleton.Instance.RunWithGIL(() =>
+            return _pythonEngineSingleton.RunWithGIL(() =>
             {
                 dynamic sys = Py.Import("sys");
                 sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
