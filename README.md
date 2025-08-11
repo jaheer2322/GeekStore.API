@@ -21,6 +21,104 @@ GeekStore is a RESTful, API-first backend platform designed to manage products, 
 
 This project is built using **ASP.NET Core Web API** and **Entity Framework Core**, with advanced semantic similarity search using **pgvector** in PostgreSQL and AI integration through **Groq LLM API**. It cintains a dedicated Python microservice asynchronously generates embeddings, decoupled via a queue-based pipeline to ensure optimal performance and modularity.
 
+## Outcome
+### Request
+<img src="./Assets/Screenshots/Request.png" />
+
+### Response
+
+```json
+{
+  "message": "Here are the recommended PC builds based on your query among our best available components.",
+  "builds": [
+    {
+      "parts": {
+        "GPU": {
+          "id": "019755f0-2f01-7925-822c-370285efb803",
+          "name": "Gigabyte AORUS RTX 4090 Master",
+          "description": "24GB GDDR6X, Windforce cooling, RGB Fusion, 4 DP + 1 HDMI output. (High end)",
+          "price": 184999
+        },
+        "Ram": {
+          "id": "019755f0-3c93-7909-b053-d131bb4431d1",
+          "name": "Corsair Vengeance RGB 64 GB DDR5-6000",
+          "description": "Corsair's Vengeance RGB DDR5-6000 combines aggressive styling with smooth performance. With 64GB of bandwidth-rich memory, it's ideal for gaming, streaming, and content creation. (High end)",
+          "price": 18269.1
+        },
+        "CPU": {
+          "id": "019755f0-2b45-76d8-9091-441a77fad75b",
+          "name": "Intel Core i9-14900K",
+          "description": "Socket: LGA1700. Intel 14th Gen Core i9-14900K with 24 cores (8 P-cores + 16 E-cores), 32 threads, and a max turbo frequency of 6.0 GHz. Built on Intel 7 process technology and supports DDR5 and PCIe 5.0. (High end)",
+          "price": 69999
+        },
+        "Motherboard": {
+          "id": "019755f0-383d-701b-aa99-27e99bf5b7a7",
+          "name": "Gigabyte Z790 AORUS XTREME",
+          "description": "Socket: LGA1700. Flagship Intel Z790 board with DDR5, PCIe 5.0, 23-phase VRM, Thunderbolt 4, and Wi-Fi 6E. (High end)",
+          "price": 65999
+        },
+        "PSU": {
+          "id": "019755f0-3339-7643-a66b-322d135fc02a",
+          "name": "MSI MAG A850GL PCIE5 ATX 80+ Gold 850 W",
+          "description": "MSI's MAG A850GL PCIE5 ATX PSU is designed for modern high-end gaming setups and creator workstations. It delivers 850W of stable power, supports PCIe 5.0 GPUs, and features 80+ Gold efficiency with a fully modular design for clean cable routing and optimal airflow. (High end)",
+          "price": 11699.1
+        },
+        "Storage": {
+          "id": "019755f0-417f-7526-9a67-dac7566397e6",
+          "name": "Western Digital WD_Black SN850X 2 TB M.2 PCIe 4.0 X4",
+          "description": "Optimized for high-FPS gaming and creative workloads, this SN850X provides ultra-low latency and up to 7300 MB/s read speeds. Compatible with PS5 and ideal for modern AAA games. (High end)",
+          "price": 14166.9
+        }
+      },
+      "totalBuildPrice": 365132.1
+    },
+    {
+      "parts": {
+        "GPU": {
+          "id": "019755f0-2e9d-78c2-bde6-394db55403c6",
+          "name": "ASUS ROG Strix RTX 4080 Super OC Edition",
+          "description": "16GB GDDR6X, factory overclocked, triple fan cooling, DLSS 3, Ray Tracing. (High end)",
+          "price": 139999
+        },
+        "Ram": {
+          "id": "019755f0-3c93-7909-b053-d131bb4431d1",
+          "name": "Corsair Vengeance RGB 64 GB DDR5-6000",
+          "description": "Corsair's Vengeance RGB DDR5-6000 combines aggressive styling with smooth performance. With 64GB of bandwidth-rich memory, it's ideal for gaming, streaming, and content creation. (High end)",
+          "price": 18269.1
+        },
+        "CPU": {
+          "id": "019755f0-2bb6-7b98-9296-0e14bf82f5b4",
+          "name": "Intel Core i9-13900K",
+          "description": "Socket: LGA1700. 24-core (8P+16E), 32-thread Intel Core i9-13900K processor with turbo boost up to 5.8 GHz. DDR5 and PCIe 5.0 ready. (High end)",
+          "price": 62999
+        },
+        "Motherboard": {
+          "id": "019755f0-387a-70d2-aad9-105ba6a83073",
+          "name": "ASUS ROG Maximus Z790 Hero",
+          "description": "Socket: LGA1700. Intel Z790 board with PCIe 5.0, DDR5, Thunderbolt 4, 20+1 VRM, Wi-Fi 6E, and advanced RGB. (High end)",
+          "price": 58999
+        },
+        "PSU": {
+          "id": "019755f0-3339-7643-a66b-322d135fc02a",
+          "name": "MSI MAG A850GL PCIE5 ATX 80+ Gold 850 W",
+          "description": "MSI's MAG A850GL PCIE5 ATX PSU is designed for modern high-end gaming setups and creator workstations. It delivers 850W of stable power, supports PCIe 5.0 GPUs, and features 80+ Gold efficiency with a fully modular design for clean cable routing and optimal airflow. (High end)",
+          "price": 11699.1
+        },
+        "Storage": {
+          "id": "019755f0-417f-7526-9a67-dac7566397e6",
+          "name": "Western Digital WD_Black SN850X 2 TB M.2 PCIe 4.0 X4",
+          "description": "Optimized for high-FPS gaming and creative workloads, this SN850X provides ultra-low latency and up to 7300 MB/s read speeds. Compatible with PS5 and ideal for modern AAA games. (High end)",
+          "price": 14166.9
+        }
+      },
+      "totalBuildPrice": 306132.1
+    }
+  ],
+  "explanation": "Okay, let's tackle this. The user wants a PC for video editing and gaming with the best performance. So, I need to prioritize high-end components that can handle both tasks efficiently.\n\nFirst, the CPU and Motherboard compatibility. Looking at the available CPUs, the high-end ones are the Intel i9-13900K, i9-14900K, and AMD's Ryzen 9 5950X (but AMD isn't listed here). Wait, the available CPUs are all Intel. The sockets are LGA1700 for Intel and AM5 for AMD. The user's query doesn't specify a preference, but since the high-end GPUs are from both NVIDIA and AMD, but for best performance, maybe go with Intel's top-tier CPUs.\n\nFor the first build, let's take the Intel i9-14900K (ID: 019755f0-2b45-76d8-9091-441a77fad75b) which is a high-end CPU. The motherboard needs to be LGA1700. The Gigabyte Z790 AORUS XTREME (ID: 019755f0-383d-701b-aa99-27e99bf5b7a7) is a high-end Z790 board with DDR5, which pairs well with the i9-14900K.\n\nNext, GPU. The user wants best performance, so the Gigabyte AORUS RTX 4090 Master (ID: 019755f0-2f01-7925-822c-370285efb803) is the top GPU here.\n\nRAM should be high-end DDR5. The Corsair Vengeance RGB 64GB DDR5-6000 (ID: 019755f0-3c93-7909-b053-d131bb4431d1) is a good choice for heavy multitasking in video editing.\n\nStorage, the WD_Black SN850X 2TB (ID: 019755f0-417f-7526-9a67-dac7566397e6) offers high speed for large files.\n\nPSU needs to handle the RTX 4090. The MSI MAG A850GL (ID: 019755f0-3339-7643-a66b-322d135fc02a) is 850W Gold, which should be sufficient.\n\nFor the second build, maybe a slightly different setup. Let's use the Intel i9-13900K (ID: 019755f0-2bb6-7b98-9296-0e14bf82f5b4) with a slightly cheaper motherboard, like the ASUS ROG Strix Z790 Hero (ID: 019755f0-387a-70d2-aad9-105ba6a83073). GPU could be the ASUS ROG Strix RTX 4080 Super (ID: 019755f0-2e9d-78c2-bde6-394db55403c6). RAM same as before. Storage same. PSU same.\n\nWait, check the motherboard sockets again. Both CPUs are LGA1700, and the motherboards selected are LGA1700. That's correct. Also, ensure all components are high-end for best performance. The second build uses a slightly older CPU but still high-end. The GPU is the RTX 4080, which is also high-end.\n\nRAM in both builds is 64GB DDR5, which is suitable for heavy workloads. Storage is 2TB PCIe 4.0 for fast access. PSU is sufficient for the GPUs.\n\nLooks like both builds are valid with compatible sockets and high-end components. Let's structure the JSON accordingly."
+}
+```
+
+
 ## Tech Stack
 
 | Component                  | Technology Used                                              |
